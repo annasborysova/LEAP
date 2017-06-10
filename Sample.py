@@ -5,14 +5,19 @@
 # https://developer.leapmotion.com/sdk_agreement, or another agreement         #
 # between Leap Motion and you, your company or other organization.             #
 ################################################################################
-
-import Leap, sys, thread, time
+import sys, thread, time, os
+from config import *
+sys.path.insert(0, leapLib)
+sys.path.insert(0, moreLeap)
+import Leap
 from Leap import CircleGesture, KeyTapGesture, ScreenTapGesture, SwipeGesture
+import ctypes
 
 class SampleListener(Leap.Listener):
     finger_names = ['Thumb', 'Index', 'Middle', 'Ring', 'Pinky']
     bone_names = ['Metacarpal', 'Proximal', 'Intermediate', 'Distal']
     state_names = ['STATE_INVALID', 'STATE_START', 'STATE_UPDATE', 'STATE_END']
+    filename = "frame.data"
 
     def on_init(self, controller):
         print "Initialized"
@@ -36,6 +41,24 @@ class SampleListener(Leap.Listener):
     def on_frame(self, controller):
         # Get the most recent frame and report some basic information
         frame = controller.frame()
+        serialized_tuple = frame.serialize
+        serialized_data = serialized_tuple[0]
+        serialized_length = serialized_tuple[1]
+        data_address = serialized_data.cast().__long__()
+        buffer = (ctypes.c_ubyte * serialized_length).from_address(data_address)
+        with open(os.path.realpath(self.filename), 'wb') as data_file:
+            data_file.write(buffer)
+
+        # new_frame = Leap.Frame()
+        # with open(os.path.realpath(self.filename), 'rb') as data_file:
+        #     data = data_file.read()
+        #
+        # leap_byte_array = Leap.byte_array(len(data))
+        # address = leap_byte_array.cast().__long__()
+        # ctypes.memmove(address, data, len(data))
+        # new_frame.deserialize((leap_byte_array, len(data)))
+
+        # assert frame.id == new_frame.id
 
         print "Frame id: %d, timestamp: %d, hands: %d, fingers: %d, tools: %d, gestures: %d" % (
               frame.id, frame.timestamp, len(frame.hands), len(frame.fingers), len(frame.tools), len(frame.gestures()))
@@ -144,23 +167,23 @@ class SampleListener(Leap.Listener):
         if state == Leap.Gesture.STATE_INVALID:
             return "STATE_INVALID"
 
+
+
 def main():
     # Create a sample listener and controller
     listener = SampleListener()
     controller = Leap.Controller()
 
     # Have the sample listener receive events from the controller
-    controller.add_listener(listener)
 
     # Keep this process running until Enter is pressed
-    print "Press Enter to quit..."
-    try:
-        sys.stdin.readline()
-    except KeyboardInterrupt:
-        pass
-    finally:
-        # Remove the sample listener when done
+    while True:
+        filename = raw_input("File name: ")
+        listener.filename = filename
+        controller.add_listener(listener)
+        time.sleep(3)
         controller.remove_listener(listener)
+
 
 
 if __name__ == "__main__":
