@@ -1,9 +1,12 @@
+import sys, thread, time, os
 from config import *
 sys.path.insert(0, leap_lib)
 sys.path.insert(0, more_leap)
-import Leap, ctypes, collections
+import Leap, ctypes
 
-def read_data(filename):
+def read_frame(filename):
+
+    Leap.Controller()
     new_frame = Leap.Frame()
     with open(os.path.realpath(filename), 'rb') as data_file:
         data = data_file.read()
@@ -24,8 +27,14 @@ def get_normalised_fingers_features(hand):
 
     features = []
     for finger in hand.fingers:
-        transformed_position = hand_transform.transform_point(finger.tip_position)
-        transformed_direction = hand_transform.transform_direction(finger.direction)
-        features.append(transformed_position)
-        features.append(transformed_direction)
-        # Do something with the transformed fingers
+#        transformed_position = hand_transform.transform_point(finger.tip_position)
+#        transformed_direction = hand_transform.transform_direction(finger.direction) 
+        transformed_position = finger.tip_position
+        transformed_direction = finger.direction
+        features.append(transformed_position.x)
+        features.append(transformed_position.y)
+        features.append(transformed_position.z)
+        features.append(transformed_direction.x)
+        features.append(transformed_direction.y)
+        features.append(transformed_direction.z)
+    return features
