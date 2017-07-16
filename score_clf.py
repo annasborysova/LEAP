@@ -3,7 +3,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 from sklearn.naive_bayes import GaussianNB, BernoulliNB
 from sklearn.neural_network import MLPClassifier
-import process, string
+import process, string, utils
 from sklearn.metrics import classification_report, confusion_matrix
 
 
@@ -28,10 +28,13 @@ scores = [(n, clf.fit(training_data, training_target).score(test_data,
 for name, score in sorted(scores, key=lambda t: t[1], reverse=True):
     print name, score
 
-for n, clf in classifiers.iteritems():
-    print "CLASSIFIER: " + n
-    gesture_pred = clf.fit(training_data, training_target).predict(test_data)
-    print confusion_matrix(test_target, gesture_pred, range(26))
+#for n, clf in classifiers.iteritems():
+#    print "CLASSIFIER: " + n
+#    gesture_pred = clf.fit(training_data, training_target).predict(test_data)
 #    target_names = list(string.ascii_lowercase)
+#    cm = confusion_matrix(test_target, gesture_pred, target_names)
+#    utils.plot_confusion_matrix(cm, classes=target_names, title=n)
+
+
 #    print(classification_report(test_target, gesture_pred, target_names=target_names))
     

@@ -12,9 +12,8 @@ def read_data(path):
 #        if gestures_done > 50:
 #            break
 #        gestures_done += 1
-        letter_index = string.lowercase.index(foldername[len(path)+5])
-#        letter_index = foldername[len(path)+5]
-#        gesture = []
+        letter_index = foldername[len(path)+5]
+        gesture = []
 #        gesture_names.append(letter_index)
         
         ideal_frame_number = 1
@@ -28,23 +27,23 @@ def read_data(path):
             # if there's data/features in frame
             if frame_features:
                 frame_number += 1
-#                gesture.extend(frame_features)
-                gesture_data.append(frame_features)
-                gesture_names.append(letter_index)
+                gesture.extend(frame_features)
+#                gesture_data.append(frame_features)
+#                gesture_names.append(letter_index)
                 
                 # only add features from 5 frames
-#                if frame_number == ideal_frame_number:
-#                    break
+                if frame_number == ideal_frame_number:
+                    break
             else:
                 # bad frame
                 print filename
         
         # only consider a gesture if correct number of frames/features
-#        if frame_number == ideal_frame_number:
-#            gesture_data.append(gesture)
-#            gesture_names.append(letter_index)
-#        else:
-#            print "Rejected gesture: " + foldername
+        if frame_number == ideal_frame_number:
+            gesture_data.append(gesture)
+            gesture_names.append(letter_index)
+        else:
+            print "Rejected gesture: " + foldername
             
             
     return gesture_names, gesture_data
@@ -54,14 +53,21 @@ def process_frame(frame):
         print("Bad frame: Incorrect number of hands " + str(len(frame.hands)))
         return False
     else:
+#        for attribute in dir(frame.hands[0]):
+##            print attribute
+#            if callable(getattr(frame.hands[0], attribute)):
+#                print "callable: " + attribute
+#            else:
+#                print "not calllable: " + attribute
         print "good frame"
-    return utils.get_normalised_fingers_features(frame.hands[0])
+#        exit()
+    return utils.get_features(frame.hands[0])
 
-#gesture_names, gesture_data = read_data("..\\HonoursProject\\DataGathering\\Leap-20170711T104559Z-001\\Leap\\")
+gesture_names2, gesture_data2 = read_data("..\\HonoursProject\\DataGathering\\DataGath2\\")
 gesture_names, gesture_data = read_data("..\\HonoursProject\\DataGathering\\")
 
-#gesture_names.extend(gesture_names2)
-#gesture_data.extend(gesture_data2)
+gesture_names.extend(gesture_names2)
+gesture_data.extend(gesture_data2)
 
 #
 #clf = svm.LinearSVC()
