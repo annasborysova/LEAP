@@ -22,8 +22,8 @@ def read_frame(filename):
 def is_primitive(thing):
     return type(thing) in (int, float)
 
-valid_features = ('hands', 'fingers', 'arm', 'basis', 'x_basis', 'y_basis', 'origin', 'z_basis', 'x', 'y', 'z', 'pitch', 'roll', 'yaw', 'confidence', 'direction', 'grab_strength', 'palm_normal', 'palm_position', 'palm_velocity', 'palm_width', 'pinch_strength', 'sphere_center', 'sphere_radius', 'stabilized_palm_position', 'wrist_position', 'width', 'elbow_position', )
-
+valid_features = ('hands', 'fingers', 'arm', 'basis', 'x_basis', 'y_basis', 'origin', 'z_basis', 'x', 'y', 'z', 'pitch', 'roll', 'yaw', 'confidence', 'direction', 'grab_strength', 'palm_normal', 'palm_position', 'palm_velocity', 'pinch_strength', 'sphere_center', 'sphere_radius', 'stabilized_palm_position', 'wrist_position')
+import inspect
 def flatten(obj):
     l = [val for val in dir(obj) if val in valid_features]
     for el in l:
@@ -31,9 +31,23 @@ def flatten(obj):
             yield sub
     if isinstance(obj, float):
         yield obj
+        
+def flatten2(obj):
+    print inspect.getmembers(obj, predicate=lambda x: x in valid_features)
+#        print attr
+    l = [val for attr, val in inspect.getmembers(obj, lambda x: x in valid_features)]
+    print l
+    for el in l:
+        print el
+        for sub in flatten(getattr(obj, el)):
+            yield sub
+    if isinstance(obj, float):
+        yield obj
 
 def get_features(hand):
-    return itertools.chain(flatten(hand), get_normalised_fingers_features(hand))
+#    return itertools.chain(flatten(hand), get_normalised_fingers_features(hand))
+    return flatten(hand)
+#    return get_normalised_fingers_features(hand)
 
 def get_normalised_fingers_features(hand):
     hand_x_basis = hand.basis.x_basis
@@ -44,18 +58,24 @@ def get_normalised_fingers_features(hand):
     hand_transform = hand_transform.rigid_inverse()
 
     features = []
-    
     for finger in hand.fingers:
-#        transformed_position = hand_transform.transform_point(finger.tip_position)
-#        transformed_direction = hand_transform.transform_direction(finger.direction) 
-        transformed_position = finger.tip_position
-        transformed_direction = finger.direction
-        features.append(transformed_position.x)
-        features.append(transformed_position.y)
-        features.append(transformed_position.z)
-        features.append(transformed_direction.x)
-        features.append(transformed_direction.y)
-        features.append(transformed_direction.z)
+        features = itertools.chain(features, flatten(finger))
+        
+        features = itertools.chain(features, flatten(finger.bone(Leap.Bone.TYPE_METACARPAL).next_joint))
+        features = itertools.chain(features, flatten(finger.bone(Leap.Bone.TYPE_PROXIMAL).next_joint))
+        features = itertools.chain(features, flatten(finger.bone(Leap.Bone.TYPE_INTERMEDIATE).next_joint))
+        features = itertools.chain(features, flatten(finger.bone(Leap.Bone.TYPE_DISTAL).next_joint))   
+        
+        transformed_position = hand_transform.transform_point(finger.tip_position)
+        transformed_direction = hand_transform.transform_direction(finger.direction) 
+#        transformed_position = finger.tip_position
+#        transformed_direction = finger.direction
+        features = itertools.chain(features, [transformed_position.x])
+        features = itertools.chain(features, [transformed_position.y])
+        features = itertools.chain(features, [transformed_position.z])
+        features = itertools.chain(features, [transformed_direction.x])
+        features = itertools.chain(features, [transformed_direction.y])
+        features = itertools.chain(features, [transformed_direction.z])
 #    print features
     return features
 
