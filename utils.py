@@ -1,10 +1,14 @@
-import sys, thread, time, os
+import sys, os
 from config import *
 sys.path.insert(0, leap_lib)
 sys.path.insert(0, more_leap)
-import Leap, ctypes, itertools, collections
+import Leap, ctypes, itertools
 import matplotlib.pyplot as plt
 import numpy as np
+
+if __name__=="__main__":
+    import sys
+    sys.exit()
 
 def read_frame(filename):
 
@@ -22,7 +26,7 @@ def read_frame(filename):
 def is_primitive(thing):
     return type(thing) in (int, float)
 
-valid_features = ('hands', 'fingers', 'arm', 'basis', 'x_basis', 'y_basis', 'origin', 'z_basis', 'x', 'y', 'z', 'pitch', 'roll', 'yaw', 'confidence', 'direction', 'grab_strength', 'palm_normal', 'palm_position', 'palm_velocity', 'pinch_strength', 'sphere_center', 'sphere_radius', 'stabilized_palm_position', 'wrist_position')
+valid_features = ('center', 'next_joint', 'prev_joint', 'hands', 'fingers', 'arm', 'basis', 'x_basis', 'y_basis', 'origin', 'z_basis', 'x', 'y', 'z', 'pitch', 'roll', 'yaw', 'confidence', 'direction', 'grab_strength', 'palm_normal', 'palm_position', 'palm_velocity', 'pinch_strength', 'sphere_center', 'sphere_radius', 'stabilized_palm_position', 'stabilized_tip_position', 'tip_position', 'tip_velocity', 'wrist_position')
 import inspect
 def flatten(obj):
     l = [val for val in dir(obj) if val in valid_features]
@@ -33,21 +37,21 @@ def flatten(obj):
         yield obj
         
 def flatten2(obj):
-    print inspect.getmembers(obj, predicate=lambda x: x in valid_features)
-#        print attr
     l = [val for attr, val in inspect.getmembers(obj, lambda x: x in valid_features)]
-    print l
     for el in l:
-        print el
         for sub in flatten(getattr(obj, el)):
             yield sub
     if isinstance(obj, float):
         yield obj
 
 def get_features(hand):
-#    return itertools.chain(flatten(hand), get_normalised_fingers_features(hand))
+    return itertools.chain(flatten(hand), get_normalised_fingers_features(hand))
+    
+def get_hand_features(hand):
     return flatten(hand)
-#    return get_normalised_fingers_features(hand)
+
+def get_finger_features(hand):
+    return get_normalised_fingers_features(hand)
 
 def get_normalised_fingers_features(hand):
     hand_x_basis = hand.basis.x_basis
@@ -58,26 +62,36 @@ def get_normalised_fingers_features(hand):
     hand_transform = hand_transform.rigid_inverse()
 
     features = []
+    # force some sort of order for ML
     for finger in hand.fingers:
-        features = itertools.chain(features, flatten(finger))
-        
-        features = itertools.chain(features, flatten(finger.bone(Leap.Bone.TYPE_METACARPAL).next_joint))
-        features = itertools.chain(features, flatten(finger.bone(Leap.Bone.TYPE_PROXIMAL).next_joint))
-        features = itertools.chain(features, flatten(finger.bone(Leap.Bone.TYPE_INTERMEDIATE).next_joint))
-        features = itertools.chain(features, flatten(finger.bone(Leap.Bone.TYPE_DISTAL).next_joint))   
-        
+        if finger.type == 0:
+            thumb = process_finger(finger, hand_transform)
+        elif finger.type == 1:
+            index = process_finger(finger, hand_transform)
+        elif finger.type == 2:
+            middle = process_finger(finger, hand_transform)
+        elif finger.type == 3:
+            ring = process_finger(finger, hand_transform)
+        elif finger.type == 4:
+            pinky = process_finger(finger, hand_transform)
+
+    features = itertools.chain(thumb, index, middle, ring, pinky)
+
+    return features
+
+def process_finger(finger, hand_transform):
+        # flatten finger with pointable features
+        features = flatten(finger)
+        for i in range(4):
+            features = itertools.chain(features, flatten(finger.bone(i)))
+
         transformed_position = hand_transform.transform_point(finger.tip_position)
         transformed_direction = hand_transform.transform_direction(finger.direction) 
 #        transformed_position = finger.tip_position
 #        transformed_direction = finger.direction
-        features = itertools.chain(features, [transformed_position.x])
-        features = itertools.chain(features, [transformed_position.y])
-        features = itertools.chain(features, [transformed_position.z])
-        features = itertools.chain(features, [transformed_direction.x])
-        features = itertools.chain(features, [transformed_direction.y])
-        features = itertools.chain(features, [transformed_direction.z])
-#    print features
-    return features
+        features = itertools.chain(features, flatten(transformed_position), flatten(transformed_direction))
+        
+        return features
 
 def plot_confusion_matrix(cm, classes,
                           normalize=False,
