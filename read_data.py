@@ -13,8 +13,8 @@ def read_data(path, frames_per_gesture=10, separate_frames=True, feature_set_typ
         # only consider a gesture if correct number of frames/features            
         if gesture:
 #            print gesture
-#            letter = foldername[len(path)+6]
-            letter = string.ascii_lowercase.index(foldername[len(path)+6])
+            letter = foldername[len(path)+6]
+#            letter = string.ascii_lowercase.index(foldername[len(path)+6])
             
             # gesture_data is a list of lists
             # gesture_names is a list of letters
