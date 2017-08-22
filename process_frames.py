@@ -15,21 +15,24 @@ def process_frame(frame, feature_set_type='all'):
 
 def rewrite(path, feature_set_type):
     for foldername in sorted(glob.glob(os.path.join(path, "Leap_*"))):
-        for filename in glob.glob(os.path.join(foldername, "*.txt")):
+        print(foldername)
+        for filename in glob.glob(os.path.join(foldername, "*.data")):
             frame_features = process_frame(utils.read_frame(filename), feature_set_type)
-            with open(filename[:-4] + '_' + feature_set_type + ".features", 'wb') as fp:
+            with open(filename[:-5] + '_' + feature_set_type + ".features", 'wb') as fp:
                 pickle.dump([x for x in frame_features], fp)
             
 def rewrite_all():
-    paths = ["Leap_Data", os.path.join("Leap_Data", "DataGath2"), os.path.join("Leap_Data", "DataGath3")]
-    feature_set_types = ['fingers_only', 'hands_only', 'all']
+#    paths = ["Leap_Data", os.path.join("Leap_Data", "DataGath2"), os.path.join("Leap_Data", "DataGath3"), os.path.join("Leap_Data", "Participant 0")]
+    paths = [os.path.join("Leap_Data", "Participant 0")]
+#    feature_set_types = ['fingers_only', 'hands_only', 'all']
+    feature_set_types = ['all']
     for path in paths:
         for feature_set_type in feature_set_types:
             print("rewriting in " + path + " for feature_set_type " + feature_set_type )
             rewrite(path, feature_set_type)
 
 if __name__=="__main__":
-#    rewrite("Leap_Data\\")
+#    rewrite(os.path.join("Leap_Data", "Participant 0"))
 #    rewrite("Leap_Data\\DataGath2\\")
 #    rewrite("Leap_Data\\DataGath3\\")
     rewrite_all()

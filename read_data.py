@@ -1,7 +1,7 @@
 import glob, pickle, os
 import string
 
-def read_data(path, frames_per_gesture=10, separate_frames=True, feature_set_type="all"):
+def read_data(path, frames_per_gesture, separate_frames, feature_set_type="all"):
     gesture_names = []
     gesture_data = []
 
@@ -34,10 +34,10 @@ def process_gesture_folder(foldername, frames_per_gesture, separate_frames, feat
         frame_num = 0
         
         # for every frame in a gesture
-        for filename in glob.glob(os.path.join(foldername, "*.txt")):
+        for filename in glob.glob(os.path.join(foldername, "*.data")):
             
             # get features from frame
-            with open(filename[:-4] + '_' + feature_set_type + ".features", 'rb') as fp:
+            with open(filename[:-5] + '_' + feature_set_type + ".features", 'rb') as fp:
                 frame_features = pickle.load(fp)
 
             # if frame_features empty, nothing added to gesture
