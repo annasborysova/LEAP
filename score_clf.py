@@ -90,11 +90,6 @@ svm_params = [
                 # sigmoid is easily invalid, drop sigmoid
             ]
             
-nb_params = {
-                'alpha': [1.0/(10**x) for x in range(50)],
-                'fit_prior': [True, False],                    
-            }
-            
 knn_params = {
                 'n_neighbors': range(1,10),
                 'weights': ['uniform', 'distance'],
@@ -128,12 +123,14 @@ mlp_params = {
             
 mlp_params = {}
 
-log.info("svm_params: {}, \n nb_params: {}, \n knn_params: {}, \n mlp_params: {}".format(svm_params, nb_params, knn_params, mlp_params))
+log.info("svm_params: {}, \n knn_params: {}, \n mlp_params: {}".format(svm_params, knn_params, mlp_params))
 
 classifiers = {        
-        'SVM': (svm.SVC(), svm_params),
-#        'BNB': (BernoulliNB(), nb_params),
-#        'kNN': (neighbors.KNeighborsClassifier(), knn_params),
+#        'SVM': (svm.SVC(), svm_params),
+#        'BNB': (BernoulliNB(), {}), # alpha not important because we have well defined priors https://stats.stackexchange.com/questions/108797/in-naive-bayes-why-bother-with-laplacian-smoothing-when-we-have-unknown-words-i
+#        'GNB': (GaussianNB(), {}), # binarize parameter may work for finger extension
+#       MultinomialNB is for positives only
+        'kNN': (neighbors.KNeighborsClassifier(), knn_params),
 #        'MLP': (MLPClassifier(), mlp_params),
 #        'TRE': (tree.DecisionTreeClassifier(),{}),
 #        'RFC': (RandomForestClassifier(),{}),
@@ -172,11 +169,13 @@ for name, clf_data in classifiers.iteritems():
     rand_scv = GridSearchCV(clf, params)
     if params:
         fitted_clf = rand_scv.fit(training_data, training_target)
+        log.info("{} chosen features: {}".format(name, fitted_clf.best_params_))
+
     else:
         fitted_clf = clf.fit(training_data, training_target)
+        log.info("{} default features: {}".format(name, fitted_clf.get_params()))
 
     trained_clfs.append((name, fitted_clf))
-    log.info("{} chosen features: {}".format(name, fitted_clf.best_params_))
 
 
 
