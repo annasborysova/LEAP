@@ -4,7 +4,7 @@ from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 from sklearn.naive_bayes import GaussianNB, BernoulliNB
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import classification_report, confusion_matrix
-from sklearn.feature_selection import SelectKBest, VarianceThreshold, RFE, chi2
+from sklearn.feature_selection import SelectKBest, VarianceThreshold
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 import os, string, utils, time, logging
 from read_data import read_data
@@ -62,21 +62,33 @@ def get_train_test_split(frames_per_gesture, separate_frames, feature_set_type="
 train_paths = [os.path.join("Leap_Data", "DataGath1"), os.path.join("Leap_Data", "DataGath3"), os.path.join("Leap_Data", "Participant 0")]
 test_paths = [os.path.join("Leap_Data", "DataGath2")]
 #test_paths = []
-training_data_all, test_data_all, training_target, test_target = get_train_test_split(train_paths=train_paths, test_paths=test_paths, use_auto_split=False, frames_per_gesture=1, separate_frames=True, feature_set_type="all")
+training_data_all, test_data_all, training_target, test_target = get_train_test_split(train_paths=train_paths, test_paths=test_paths, use_auto_split=False, frames_per_gesture=2, separate_frames=False, feature_set_type="all")
 
 
-svm_params = {
-                'kernel':('linear', 'rbf',  'poly', 'sigmoid'),
-                'C':range(1,500),
-                'gamma':[1, 0.1, 0.01, 0.001, 0.0001],
-                'degree': range(10),
-                'coef0': range(0,500,10),
-                'probability': [True, False],
-                'shrinking': [True, False],
-#                    'tol': [1.0/(10**x) for x in range(50)],
-                'class_weight': ['balanced', None],
-                'decision_function_shape': ['ovo', 'ovr'],
-            }
+c_range = [2**(x) for x in range(-5, 15)] # http://www.csie.ntu.edu.tw/~cjlin/papers/guide/guide.pdf page 5
+gamma_range = [2**(x) for x in range(-15, 3)] # http://www.csie.ntu.edu.tw/~cjlin/papers/guide/guide.pdf page 5
+desc_functions = ['ovo', 'ovr']
+
+# maybe drop poly and sigmoid
+svm_params = [
+                {'kernel': ['linear'], 
+                'C': c_range, 
+                'decision_function_shape': desc_functions},
+
+                {'kernel': ['rbf'], 
+                'gamma': gamma_range, 
+                'C': c_range, 
+                'decision_function_shape': desc_functions},
+
+                {'kernel': ['poly'], 
+                'gamma': gamma_range, 
+                'degree': range(5), # https://stackoverflow.com/questions/26337403/what-is-a-good-range-of-values-for-the-svm-svc-hyperparameters-to-be-explored
+                # not tuning coef0 https://stackoverflow.com/questions/21390570/scikit-learn-svc-coef0-parameter-range                
+                'C': c_range, 
+                'decision_function_shape': desc_functions},
+
+                # sigmoid is easily invalid, drop sigmoid
+            ]
             
 nb_params = {
                 'alpha': [1.0/(10**x) for x in range(50)],
@@ -95,9 +107,9 @@ mlp_params = {
 #               'beta_1': [9.0/(10**x) for x in range(50)], 
 #                'warm_start': [True, False],
 #               'beta_2': [9.0/(10**x) for x in range(50)],
-#                'shuffle': [True, False],
-#                'verbose': [True, False],
-#                'nesterovs_momentum': [True, False], 
+#               'shuffle': [True, False],
+#               'verbose': [True, False],
+#               'nesterovs_momentum': [True, False], 
 #               'hidden_layer_sizes': [(100,),], # add more values
 #               'epsilon': 1e-08, 
                 'activation': ('identity', 'logistic', 'tanh', 'relu'), 
@@ -120,11 +132,10 @@ log.info("svm_params: {}, \n nb_params: {}, \n knn_params: {}, \n mlp_params: {}
 
 classifiers = {        
         'SVM': (svm.SVC(), svm_params),
-        'BNB': (BernoulliNB(), nb_params),
-        'kNN': (neighbors.KNeighborsClassifier(), knn_params),
-        'MLP': (MLPClassifier(), mlp_params),
+#        'BNB': (BernoulliNB(), nb_params),
+#        'kNN': (neighbors.KNeighborsClassifier(), knn_params),
+#        'MLP': (MLPClassifier(), mlp_params),
 #        'TRE': (tree.DecisionTreeClassifier(),{}),
-#        'GBC': (GradientBoostingClassifier(n_estimators=100, learning_rate=1.0, max_depth=1, random_state=0),{}),
 #        'RFC': (RandomForestClassifier(),{}),
     }
 
@@ -143,12 +154,10 @@ if normalize:
     test_data = preprocessing.scale(test_data)
 
 selector = SelectKBest(k=200)
-#selector = PCA(n_components=3)
+training_data = selector.fit_transform(training_data, training_target)
+test_data = selector.transform(test_data)
 
 
-#training_data = selector.fit_transform(training_data, training_target)
-#test_data = selector.transform(test_data)
-#
 log.info(selector)
 log.info("number of features: {}".format(len(training_data[0])))
 print("number of features: {}".format(len(training_data[0])))
@@ -159,16 +168,15 @@ trained_clfs = []
 for name, clf_data in classifiers.iteritems():
     clf = clf_data[0]
     params = clf_data[1]
-    # feature selection
-#    rfe = RFE(model, 1114)
     rand_scv = RandomizedSearchCV(clf, params, n_iter=20)
+    rand_scv = GridSearchCV(clf, params)
     if params:
         fitted_clf = rand_scv.fit(training_data, training_target)
     else:
         fitted_clf = clf.fit(training_data, training_target)
 
     trained_clfs.append((name, fitted_clf))
-    log.info(name + " " + str(fitted_clf.get_params()))
+    log.info("{} chosen features: {}".format(name, fitted_clf.best_params_))
 
 
 
@@ -180,9 +188,10 @@ for n, clf in trained_clfs:
     log.info("CLASSIFIER: {} {}".format(n, score))
 
     report = classification_report(test_target, gesture_pred, target_names=target_names)
-#    cm = confusion_matrix(test_target, gesture_pred, target_names)
+    cm = confusion_matrix(test_target, gesture_pred, target_names)
 #    utils.plot_confusion_matrix(cm, classes=target_names, title=n)
     log.info(report)
+    log.info(cm)
 
 
 import winsound

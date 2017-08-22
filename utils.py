@@ -27,17 +27,10 @@ def is_primitive(thing):
     return type(thing) in (int, float)
 
 valid_features = ('center', 'next_joint', 'prev_joint', 'hands', 'fingers', 'arm', 'basis', 'x_basis', 'y_basis', 'origin', 'z_basis', 'x', 'y', 'z', 'pitch', 'roll', 'yaw', 'confidence', 'direction', 'grab_strength', 'palm_normal', 'palm_position', 'palm_velocity', 'pinch_strength', 'sphere_center', 'sphere_radius', 'stabilized_palm_position', 'stabilized_tip_position', 'tip_position', 'tip_velocity', 'wrist_position')
-import inspect
+
+
 def flatten(obj):
     l = [val for val in dir(obj) if val in valid_features]
-    for el in l:
-        for sub in flatten(getattr(obj, el)):
-            yield sub
-    if isinstance(obj, float):
-        yield obj
-        
-def flatten2(obj):
-    l = [val for attr, val in inspect.getmembers(obj, lambda x: x in valid_features)]
     for el in l:
         for sub in flatten(getattr(obj, el)):
             yield sub
