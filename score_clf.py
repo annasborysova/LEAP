@@ -59,140 +59,151 @@ def get_train_test_split(frames_per_gesture, separate_frames, feature_set_type="
     return training_data, test_data, training_target, test_target
 
 
-train_paths = [os.path.join("Leap_Data", "DataGath1"), os.path.join("Leap_Data", "DataGath3"), os.path.join("Leap_Data", "Participant 0")]
-test_paths = [os.path.join("Leap_Data", "DataGath2")]
-#test_paths = []
-training_data_all, test_data_all, training_target, test_target = get_train_test_split(train_paths=train_paths, test_paths=test_paths, use_auto_split=False, frames_per_gesture=2, separate_frames=False, feature_set_type="all")
-
-
-c_range = [2**(x) for x in range(-5, 15)] # http://www.csie.ntu.edu.tw/~cjlin/papers/guide/guide.pdf page 5
-gamma_range = [2**(x) for x in range(-15, 3)] # http://www.csie.ntu.edu.tw/~cjlin/papers/guide/guide.pdf page 5
-desc_functions = ['ovo', 'ovr']
-
-# maybe drop poly and sigmoid
-svm_params = [
-                {'kernel': ['linear'], 
-                'C': c_range, 
-                'decision_function_shape': desc_functions},
-
-                {'kernel': ['rbf'], 
-                'gamma': gamma_range, 
-                'C': c_range, 
-                'decision_function_shape': desc_functions},
-
-                {'kernel': ['poly'], 
-                'gamma': gamma_range, 
-                'degree': range(5), # https://stackoverflow.com/questions/26337403/what-is-a-good-range-of-values-for-the-svm-svc-hyperparameters-to-be-explored
-                # not tuning coef0 https://stackoverflow.com/questions/21390570/scikit-learn-svc-coef0-parameter-range                
-                'C': c_range, 
-                'decision_function_shape': desc_functions},
-
-                # sigmoid is easily invalid, drop sigmoid
-            ]
-            
-knn_params = {
-                'n_neighbors': range(1,10),
-                'weights': ['uniform', 'distance'],
-                'algorithm': ['auto', 'ball_tree', 'kd_tree', 'brute'],
-                'leaf_size': range(1, 100, 10),
-                'p': range(1,10),
-            }
-            
-mlp_params = {
-#               'beta_1': [9.0/(10**x) for x in range(50)], 
-#                'warm_start': [True, False],
-#               'beta_2': [9.0/(10**x) for x in range(50)],
-#               'shuffle': [True, False],
-#               'verbose': [True, False],
-#               'nesterovs_momentum': [True, False], 
-#               'hidden_layer_sizes': [(100,),], # add more values
-#               'epsilon': 1e-08, 
-                'activation': ('identity', 'logistic', 'tanh', 'relu'), 
-#               'batch_size': 'auto', 
-#               'power_t': 0.5, 
-#               'random_state': None, 
-                'learning_rate_init': [1.0/(10**x) for x in range(10)], 
-                'tol': [1.0/(10**x) for x in range(50)], # likes to be 50/high
-                'validation_fraction': [1.0/(10**x) for x in range(1,10)], 
-                'alpha': [1.0/(10**x) for x in range(10)], 
-                'solver': ['lbfgs', 'sgd', 'adam'], 
-#               'momentum': 0.9, 
-                'learning_rate': ['constant', 'invscaling', 'adaptive'], 
-#                'early_stopping': [True, False],
-            }
-            
-mlp_params = {}
-
-log.info("svm_params: {}, \n knn_params: {}, \n mlp_params: {}".format(svm_params, knn_params, mlp_params))
-
-classifiers = {        
-#        'SVM': (svm.SVC(), svm_params),
-#        'BNB': (BernoulliNB(), {}), # alpha not important because we have well defined priors https://stats.stackexchange.com/questions/108797/in-naive-bayes-why-bother-with-laplacian-smoothing-when-we-have-unknown-words-i
-#        'GNB': (GaussianNB(), {}), # binarize parameter may work for finger extension
-#       MultinomialNB is for positives only
-        'kNN': (neighbors.KNeighborsClassifier(), knn_params),
-#        'MLP': (MLPClassifier(), mlp_params),
-#        'TRE': (tree.DecisionTreeClassifier(),{}),
-#        'RFC': (RandomForestClassifier(),{}),
-    }
-
-# remove featuers with 0 variance, only changes at threshold 1.... check with more data
-
-selector = VarianceThreshold()
-training_data = selector.fit_transform(training_data_all, training_target)
-test_data = selector.transform(test_data_all)
-
-
-# normalize
-normalize = True
-log.info("normalize: {}".format(normalize))
-if normalize:
-    training_data = preprocessing.scale(training_data)
-    test_data = preprocessing.scale(test_data)
-
-selector = SelectKBest(k=200)
-training_data = selector.fit_transform(training_data, training_target)
-test_data = selector.transform(test_data)
-
-
-log.info(selector)
-log.info("number of features: {}".format(len(training_data[0])))
-print("number of features: {}".format(len(training_data[0])))
-
-
-trained_clfs = []
-
-for name, clf_data in classifiers.iteritems():
-    clf = clf_data[0]
-    params = clf_data[1]
-    rand_scv = RandomizedSearchCV(clf, params, n_iter=20)
-    rand_scv = GridSearchCV(clf, params)
-    if params:
-        fitted_clf = rand_scv.fit(training_data, training_target)
-        log.info("{} chosen features: {}".format(name, fitted_clf.best_params_))
-
-    else:
-        fitted_clf = clf.fit(training_data, training_target)
-        log.info("{} default features: {}".format(name, fitted_clf.get_params()))
-
-    trained_clfs.append((name, fitted_clf))
-
-
-
-for n, clf in trained_clfs:
-    gesture_pred = clf.predict(test_data)
-    target_names = list(string.ascii_lowercase)
-    score = clf.score(test_data, test_target)
-    print "CLASSIFIER: {} {}".format(n, score)
-    log.info("CLASSIFIER: {} {}".format(n, score))
-
-    report = classification_report(test_target, gesture_pred, target_names=target_names)
-    cm = confusion_matrix(test_target, gesture_pred, target_names)
-#    utils.plot_confusion_matrix(cm, classes=target_names, title=n)
-    log.info(report)
-    log.info(cm)
-
-
-import winsound
-winsound.Beep(500,500)
-winsound.Beep(500,500)
+if __name__=="__main__":
+    train_paths = [os.path.join("Leap_Data", "DataGath1"), os.path.join("Leap_Data", "DataGath3"), os.path.join("Leap_Data", "Participant 0")]
+    test_paths = [os.path.join("Leap_Data", "DataGath2")]
+#    train_paths = []
+    training_data_all, test_data_all, training_target, test_target = get_train_test_split(train_paths=train_paths, test_paths=test_paths, use_auto_split=False, frames_per_gesture=2, separate_frames=False, feature_set_type="all")
+    
+    
+    c_range = [2**(x) for x in range(-5, 15)] # http://www.csie.ntu.edu.tw/~cjlin/papers/guide/guide.pdf page 5
+    gamma_range = [2**(x) for x in range(-15, 3)] # http://www.csie.ntu.edu.tw/~cjlin/papers/guide/guide.pdf page 5
+    desc_functions = ['ovo', 'ovr']
+    
+    # maybe drop poly and sigmoid
+    svm_params = [
+                    {'kernel': ['linear'], 
+                    'C': c_range, 
+                    'decision_function_shape': desc_functions},
+    
+                    {'kernel': ['rbf'], 
+                    'gamma': gamma_range, 
+                    'C': c_range, 
+                    'decision_function_shape': desc_functions},
+    
+                    {'kernel': ['poly'], 
+                    'gamma': gamma_range, 
+                    'degree': range(5), # https://stackoverflow.com/questions/26337403/what-is-a-good-range-of-values-for-the-svm-svc-hyperparameters-to-be-explored
+                    # not tuning coef0 https://stackoverflow.com/questions/21390570/scikit-learn-svc-coef0-parameter-range                
+                    'C': c_range, 
+                    'decision_function_shape': desc_functions},
+    
+                    # sigmoid is easily invalid, drop sigmoid
+                ]
+                
+    neighbor_range = range(1,50) # maybe higher with more data?
+    weight_opts = ['uniform', 'distance']
+    p_range = range(1,10) # special for one and 2, minkwski shit?? arbitrary p for sparse matrices 
+                            #http://scikit-learn.org/stable/modules/neighbors.html#classification
+    knn_params = [
+                    {'n_neighbors': neighbor_range, 
+                    'weights': weight_opts,
+                    'algorithm': ['brute'],
+                    'p': p_range}, 
+                                        
+                    {'n_neighbors': neighbor_range, 
+                    'weights': weight_opts,
+                    'algorithm': ['auto', 'ball_tree', 'kd_tree'],
+                    'p': p_range,
+                    'leaf_size': range(1, 100, 10)}, # size allowed for tree storage?? affects time/space
+                ]
+                
+    mlp_params = {
+    #               'beta_1': [9.0/(10**x) for x in range(50)], 
+    #                'warm_start': [True, False],
+    #               'beta_2': [9.0/(10**x) for x in range(50)],
+    #               'shuffle': [True, False],
+    #               'verbose': [True, False],
+    #               'nesterovs_momentum': [True, False], 
+    #               'hidden_layer_sizes': [(100,),], # add more values
+    #               'epsilon': 1e-08, 
+                    'activation': ('identity', 'logistic', 'tanh', 'relu'), 
+    #               'batch_size': 'auto', 
+    #               'power_t': 0.5, 
+    #               'random_state': None, 
+                    'learning_rate_init': [1.0/(10**x) for x in range(10)], 
+                    'tol': [1.0/(10**x) for x in range(50)], # likes to be 50/high
+                    'validation_fraction': [1.0/(10**x) for x in range(1,10)], 
+                    'alpha': [1.0/(10**x) for x in range(10)], 
+                    'solver': ['lbfgs', 'sgd', 'adam'], 
+    #               'momentum': 0.9, 
+                    'learning_rate': ['constant', 'invscaling', 'adaptive'], 
+    #                'early_stopping': [True, False],
+                }
+                
+    mlp_params = {}
+    
+    log.info("svm_params: {}, \n knn_params: {}, \n mlp_params: {}".format(svm_params, knn_params, mlp_params))
+    
+    classifiers = {        
+    #        'SVM': (svm.SVC(), svm_params),
+    #        'BNB': (BernoulliNB(), {}), # alpha not important because we have well defined priors https://stats.stackexchange.com/questions/108797/in-naive-bayes-why-bother-with-laplacian-smoothing-when-we-have-unknown-words-i
+    #        'GNB': (GaussianNB(), {}), # binarize parameter may work for finger extension
+    #       MultinomialNB is for positives only
+            'kNN': (neighbors.KNeighborsClassifier(), knn_params),
+    #        'rNN': (neighbors.RadiusNeighborsClassifier(), rnn_params), # not effective in higher dimensions
+    #        'MLP': (MLPClassifier(), mlp_params),
+    #        'TRE': (tree.DecisionTreeClassifier(),{}),
+    #        'RFC': (RandomForestClassifier(),{}),
+        }
+    
+    # remove featuers with 0 variance, only changes at threshold 1.... check with more data
+    
+    selector = VarianceThreshold()
+    training_data = selector.fit_transform(training_data_all, training_target)
+    test_data = selector.transform(test_data_all)
+    
+    
+    # normalize
+    normalize = True
+    log.info("normalize: {}".format(normalize))
+    if normalize:
+        training_data = preprocessing.scale(training_data)
+        test_data = preprocessing.scale(test_data)
+    
+    selector = SelectKBest(k=200)
+    training_data = selector.fit_transform(training_data, training_target)
+    test_data = selector.transform(test_data)
+    
+    
+    log.info(selector)
+    log.info("number of features: {}".format(len(training_data[0])))
+    print("number of features: {}".format(len(training_data[0])))
+    
+    
+    trained_clfs = []
+    
+    for name, clf_data in classifiers.iteritems():
+        clf = clf_data[0]
+        params = clf_data[1]
+#        rand_scv = RandomizedSearchCV(clf, params, n_iter=20, n_jobs=-1)
+        rand_scv = GridSearchCV(clf, params, n_jobs=-1)
+        if params:
+            fitted_clf = rand_scv.fit(training_data, training_target)
+            log.info("{} chosen features: {}".format(name, fitted_clf.best_params_))
+    
+        else:
+            fitted_clf = clf.fit(training_data, training_target)
+            log.info("{} default features: {}".format(name, fitted_clf.get_params()))
+    
+        trained_clfs.append((name, fitted_clf))
+    
+    
+    
+    for n, clf in trained_clfs:
+        gesture_pred = clf.predict(test_data)
+        target_names = list(string.ascii_lowercase)
+        score = clf.score(test_data, test_target)
+        print "CLASSIFIER: {} {}".format(n, score)
+        log.info("CLASSIFIER: {} {}".format(n, score))
+    
+        report = classification_report(test_target, gesture_pred, target_names=target_names)
+        cm = confusion_matrix(test_target, gesture_pred, target_names)
+    #    utils.plot_confusion_matrix(cm, classes=target_names, title=n)
+        log.info(report)
+        log.info(cm)
+    
+    
+    import winsound
+    winsound.Beep(500,500)
+    winsound.Beep(500,500)
