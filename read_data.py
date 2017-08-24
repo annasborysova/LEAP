@@ -7,7 +7,6 @@ def read_data(path, frames_per_gesture, separate_frames, feature_set_type="all")
 
     for foldername in sorted(glob.glob(os.path.join(path, "Leap_*"))):
         
-        print(foldername)
         gesture = process_gesture_folder(foldername, frames_per_gesture, separate_frames, feature_set_type)
         
         # only consider a gesture if correct number of frames/features            

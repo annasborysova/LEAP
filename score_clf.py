@@ -60,10 +60,12 @@ def get_train_test_split(frames_per_gesture, separate_frames, feature_set_type="
 
 
 if __name__=="__main__":
-    train_paths = [os.path.join("Leap_Data", "DataGath1"), os.path.join("Leap_Data", "DataGath3"), os.path.join("Leap_Data", "Participant 0")]
+    num_features = 200
+#    train_paths = [os.path.join("Leap_Data", "DataGath1"), os.path.join("Leap_Data", "DataGath3"), os.path.join("Leap_Data", "Participant 0")]
     test_paths = [os.path.join("Leap_Data", "DataGath2")]
-#    train_paths = []
-    training_data_all, test_data_all, training_target, test_target = get_train_test_split(train_paths=train_paths, test_paths=test_paths, use_auto_split=False, frames_per_gesture=2, separate_frames=False, feature_set_type="all")
+    train_paths = []
+    auto_split=True
+    training_data_all, test_data_all, training_target, test_target = get_train_test_split(train_paths=train_paths, test_paths=test_paths, use_auto_split=auto_split, frames_per_gesture=2, separate_frames=False, feature_set_type="all")
     
     
     c_range = [2**(x) for x in range(-5, 15)] # http://www.csie.ntu.edu.tw/~cjlin/papers/guide/guide.pdf page 5
@@ -95,54 +97,44 @@ if __name__=="__main__":
     weight_opts = ['uniform', 'distance']
     p_range = range(1,10) # special for one and 2, minkwski shit?? arbitrary p for sparse matrices 
                             #http://scikit-learn.org/stable/modules/neighbors.html#classification
+    # https://datascience.stackexchange.com/questions/989/svm-using-scikit-learn-runs-endlessly-and-never-completes-execution
     knn_params = [
+    # brute algortihm infeasible for large data
+   
                     {'n_neighbors': neighbor_range, 
                     'weights': weight_opts,
-                    'algorithm': ['brute'],
-                    'p': p_range}, 
-                                        
-                    {'n_neighbors': neighbor_range, 
-                    'weights': weight_opts,
-                    'algorithm': ['auto', 'ball_tree', 'kd_tree'],
-                    'p': p_range,
-                    'leaf_size': range(1, 100, 10)}, # size allowed for tree storage?? affects time/space
+                    'algorithm': ['auto', 'ball_tree'],
+                    'p': p_range,}
+                    # kd tree bad for high dimensionality, consider with lower dimensions
+                    # leaf_size is more or less meaningless for accuracy, performance paramter
                 ]
                 
+                
+    nodes_per_layer_range = range(26, num_features, 5)
+    alpha_range = [10**x for x in range(-8,3)] # regularization term: margin width kinda thing, prevent overfitting
+    learning_rate_init_range = [10**x for x in range(-6,0)] # http://www.uio.no/studier/emner/matnat/ifi/INF3490/h15/beskjeder/question-about-mlp-learning-rate.html 
+    
     mlp_params = {
-    #               'beta_1': [9.0/(10**x) for x in range(50)], 
-    #                'warm_start': [True, False],
-    #               'beta_2': [9.0/(10**x) for x in range(50)],
-    #               'shuffle': [True, False],
-    #               'verbose': [True, False],
-    #               'nesterovs_momentum': [True, False], 
-    #               'hidden_layer_sizes': [(100,),], # add more values
-    #               'epsilon': 1e-08, 
+                    'hidden_layer_sizes': [(x,) for x in nodes_per_layer_range],
                     'activation': ('identity', 'logistic', 'tanh', 'relu'), 
-    #               'batch_size': 'auto', 
-    #               'power_t': 0.5, 
-    #               'random_state': None, 
-                    'learning_rate_init': [1.0/(10**x) for x in range(10)], 
-                    'tol': [1.0/(10**x) for x in range(50)], # likes to be 50/high
-                    'validation_fraction': [1.0/(10**x) for x in range(1,10)], 
-                    'alpha': [1.0/(10**x) for x in range(10)], 
+                    'learning_rate_init': learning_rate_init_range, 
+                    'alpha': alpha_range, 
                     'solver': ['lbfgs', 'sgd', 'adam'], 
-    #               'momentum': 0.9, 
                     'learning_rate': ['constant', 'invscaling', 'adaptive'], 
-    #                'early_stopping': [True, False],
                 }
                 
-    mlp_params = {}
+#    mlp_params = {}
     
     log.info("svm_params: {}, \n knn_params: {}, \n mlp_params: {}".format(svm_params, knn_params, mlp_params))
     
     classifiers = {        
-    #        'SVM': (svm.SVC(), svm_params),
+#            'SVM': (svm.SVC(), svm_params),
     #        'BNB': (BernoulliNB(), {}), # alpha not important because we have well defined priors https://stats.stackexchange.com/questions/108797/in-naive-bayes-why-bother-with-laplacian-smoothing-when-we-have-unknown-words-i
     #        'GNB': (GaussianNB(), {}), # binarize parameter may work for finger extension
     #       MultinomialNB is for positives only
-            'kNN': (neighbors.KNeighborsClassifier(), knn_params),
+#            'kNN': (neighbors.KNeighborsClassifier(), knn_params),
     #        'rNN': (neighbors.RadiusNeighborsClassifier(), rnn_params), # not effective in higher dimensions
-    #        'MLP': (MLPClassifier(), mlp_params),
+            'MLP': (MLPClassifier(), mlp_params),
     #        'TRE': (tree.DecisionTreeClassifier(),{}),
     #        'RFC': (RandomForestClassifier(),{}),
         }
@@ -161,7 +153,7 @@ if __name__=="__main__":
         training_data = preprocessing.scale(training_data)
         test_data = preprocessing.scale(test_data)
     
-    selector = SelectKBest(k=200)
+    selector = SelectKBest(k=num_features)
     training_data = selector.fit_transform(training_data, training_target)
     test_data = selector.transform(test_data)
     
@@ -177,7 +169,7 @@ if __name__=="__main__":
         clf = clf_data[0]
         params = clf_data[1]
 #        rand_scv = RandomizedSearchCV(clf, params, n_iter=20, n_jobs=-1)
-        rand_scv = GridSearchCV(clf, params, n_jobs=-1)
+        rand_scv = GridSearchCV(clf, params)
         if params:
             fitted_clf = rand_scv.fit(training_data, training_target)
             log.info("{} chosen features: {}".format(name, fitted_clf.best_params_))
