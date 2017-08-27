@@ -7,6 +7,7 @@ def read_data(path, frames_per_gesture, separate_frames, feature_set_type="all")
 
     for foldername in sorted(glob.glob(os.path.join(path, "Leap_*"))):
         
+        
         gesture = process_gesture_folder(foldername, frames_per_gesture, separate_frames, feature_set_type)
         
         # only consider a gesture if correct number of frames/features            
@@ -32,11 +33,15 @@ def process_gesture_folder(foldername, frames_per_gesture, separate_frames, feat
         gesture = []
         frame_num = 0
         
+        if feature_set_type == "average":
+            with open(os.path.join(foldername, "all.average"), 'rb') as fp:
+                return pickle.load(fp)
+        
         # for every frame in a gesture
-        for filename in glob.glob(os.path.join(foldername, "*.data")):
+        for filename in glob.glob(os.path.join(foldername, "*" + feature_set_type + ".features")):
             
             # get features from frame
-            with open(filename[:-5] + '_' + feature_set_type + ".features", 'rb') as fp:
+            with open(filename, 'rb') as fp:
                 frame_features = pickle.load(fp)
 
             # if frame_features empty, nothing added to gesture

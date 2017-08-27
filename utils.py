@@ -6,9 +6,6 @@ import Leap, ctypes, itertools
 import matplotlib.pyplot as plt
 import numpy as np
 
-if __name__=="__main__":
-    import sys
-    sys.exit()
 
 def read_frame(filename):
 
