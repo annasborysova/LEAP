@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import utils, pickle, glob, os
-from operator import add, div
 
 
 def process_frame(frame, feature_set_type='all'):
@@ -25,44 +24,6 @@ def rewrite(path, feature_set_type):
             if frame_features:
                 with open(filename[:-5] + '_' + feature_set_type + ".features", 'wb') as fp:
                     pickle.dump([x for x in frame_features], fp)
-                
-def avg_features(path, feature_set_type):
-    for foldername in sorted(glob.glob(os.path.join(path, "Leap_*"))):
-        print(foldername)
-        features = []
-        count = 0
-        for filename in glob.glob(os.path.join(foldername, "*" + feature_set_type + ".features")):
-            with open(filename, 'rb') as fp:
-                try:
-                    new_features= pickle.load(fp)
-                    if not new_features:
-                        fp.close()
-                        os.remove(filename)
-                        continue
-                except EOFError:
-                    fp.close()
-                    os.remove(filename)
-                    continue
-                if features:
-                    count += 1
-                    map(add, features, new_features)
-                else:
-                    count += 1
-                    features = new_features
-        
-        features = map(div, features, [count]*len(features))
-        with open(os.path.join(foldername, feature_set_type + ".average"), 'wb') as fp:
-            pickle.dump([x/(count+1) for x in features], fp)          
-        
-def avg_features_all():
-    paths = [os.path.join("Leap_Data", "Legit_Data", "Participant " + str(x), "Leap") for x in range(12, 24)]
-
-#    feature_set_types = ['fingers_only', 'hands_only', 'all']
-    feature_set_types = ['fingers_only']
-    for path in paths:
-        for feature_set_type in feature_set_types:
-            print("averaging in " + path + " for feature_set_type " + feature_set_type )
-            avg_features(path, feature_set_type)
 
             
 def rewrite_all():
@@ -81,7 +42,6 @@ if __name__=="__main__":
 #    rewrite(os.path.join("Leap_Data", "Participant 0"))
 #    rewrite("Leap_Data\\DataGath2\\")
 #    rewrite("Leap_Data\\DataGath3\\")
-#    rewrite_all()
-    avg_features_all()
+    rewrite_all()
     import winsound
     winsound.Beep(300,2000)

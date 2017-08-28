@@ -1,5 +1,5 @@
 import sys, os
-from config import *
+from config import leap_lib, more_leap
 sys.path.insert(0, leap_lib)
 sys.path.insert(0, more_leap)
 import Leap, ctypes, itertools

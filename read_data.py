@@ -1,15 +1,19 @@
-import glob, pickle, os
-import string
+import glob, pickle, os, sys
+import string, utils
+from operator import add
 
-def read_data(path, frames_per_gesture, separate_frames, feature_set_type="all"):
+
+def read_data(path, frames_per_gesture=1, separate_frames=False, feature_set_type="all", average=False):
     gesture_names = []
     gesture_data = []
+    if average:
+        separate_frames = False
 
     for foldername in sorted(glob.glob(os.path.join(path, "Leap_*"))):
         
         
-        gesture = process_gesture_folder(foldername, frames_per_gesture, separate_frames, feature_set_type)
-        
+        gesture = process_gesture_folder(foldername, frames_per_gesture, separate_frames, feature_set_type, average)
+
         # only consider a gesture if correct number of frames/features            
         if gesture:
 #            print gesture
@@ -29,13 +33,13 @@ def read_data(path, frames_per_gesture, separate_frames, feature_set_type="all")
                 
     return gesture_data, gesture_names
 
-def process_gesture_folder(foldername, frames_per_gesture, separate_frames, feature_set_type):
+
+def process_gesture_folder(foldername, frames_per_gesture, separate_frames, feature_set_type, average):
         gesture = []
         frame_num = 0
         
-        if feature_set_type == "average":
-            with open(os.path.join(foldername, "all.average"), 'rb') as fp:
-                return pickle.load(fp)
+        if average:
+            return get_average(foldername, feature_set_type)
         
         # for every frame in a gesture
         for filename in glob.glob(os.path.join(foldername, "*" + feature_set_type + ".features")):
@@ -58,3 +62,23 @@ def process_gesture_folder(foldername, frames_per_gesture, separate_frames, feat
             return gesture
         else:
             return []
+
+
+
+def get_average(path, feature_set_type):
+    for foldername in sorted(glob.glob(os.path.join(path, "Leap_*"))):
+        features = []
+        count = 0
+        for filename in glob.glob(os.path.join(foldername, "*" + feature_set_type + ".features")):
+            with open(filename, 'rb') as fp:
+                new_features= pickle.load(fp)
+                if not new_features:
+                    continue
+                if features:
+                    count += 1
+                    map(add, features, new_features)
+                else:
+                    count += 1
+                    features = new_features
+        
+        return [x/(count) for x in features]  

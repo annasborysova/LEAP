@@ -28,18 +28,20 @@ def select_features(training_data, training_target, test_data):
     training_data, test_data = remove_0_var(training_data, training_target, test_data)
     training_data, test_data = normalize(training_data, test_data)
     
-    selector = SelectKBest(k=num_features)
+    selector = SelectKBest(k=500)
     training_data = selector.fit_transform(training_data, training_target)
     test_data = selector.transform(test_data)
-#    selector = SelectFromModel(ExtraTreesClassifier(), threshold=0.007)
-#    training_data = selector.fit_transform(training_data, training_target)
-#    test_data = selector.transform(test_data)
+    selector = SelectFromModel(ExtraTreesClassifier(), threshold=0.002)
+    training_data = selector.fit_transform(training_data, training_target)
+    test_data = selector.transform(test_data)
     
-    return training_data, test_data
     
     log.info(selector)
     log.info("number of features: {}".format(len(training_data[0])))
     print("number of features: {}".format(len(training_data[0])))
+    
+    return training_data, test_data
+
     
 
 def optimize_params(clf, params, training_data, training_target):
@@ -77,21 +79,23 @@ def normalize(training_data, test_data):
     return training_data, test_data
 
 
-def get_train_test_split(frames_per_gesture, separate_frames, feature_set_type="all", train_paths=[], test_paths=[], use_auto_split=False):
-    
+def get_train_test_split(frames_per_gesture, separate_frames, feature_set_type="all", train_paths=[], test_paths=[], use_auto_split=False, average=False):
+
     log.info('Data variables: \n'
             '\t train_paths: {}, \n'
             '\t test_paths: {}, \n'
             '\t use_auto_split: {}, \n'
             '\t frames_per_gesture: {}, \n'
             '\t separate_frames: {}, \n'
-            '\t feature_set_type: {}'
+            '\t feature_set_type: {} \n'
+            '\t average: {}'
             .format(train_paths, 
                     test_paths, 
                     use_auto_split, 
                     frames_per_gesture, 
                     separate_frames, 
-                    feature_set_type))
+                    feature_set_type,
+                    average))
 
     training_data = []
     training_target = []
@@ -116,24 +120,30 @@ def get_train_test_split(frames_per_gesture, separate_frames, feature_set_type="
 
 
 if __name__=="__main__":
-    num_features = 200
 #    train_paths = [os.path.join("Leap_Data", "DataGath1"), os.path.join("Leap_Data", "DataGath3"), os.path.join("Leap_Data", "Participant 0")]
 #    test_paths = [os.path.join("Leap_Data", "DataGath2")]
     train_paths = [os.path.join("Leap_Data", "Legit_Data", "Participant " + str(x), "Leap") for x in range(14, 21)]
     test_paths = [os.path.join("Leap_Data", "Legit_Data", "Participant 12", "Leap")]
 #    train_paths = []
-    auto_split=False
-    feature_set = "all"
-    fpg = 2
-    separate_frames = True
-    training_data, test_data, training_target, test_target = get_train_test_split(train_paths=train_paths, test_paths=test_paths, use_auto_split=auto_split, frames_per_gesture=fpg, separate_frames=separate_frames, feature_set_type=feature_set)
+
+    training_data, test_data, training_target, test_target = get_train_test_split(
+            train_paths=train_paths, 
+            test_paths=test_paths, 
+            use_auto_split=False, 
+            frames_per_gesture=2, 
+            separate_frames=False, 
+            feature_set_type='all',
+            average=True
+        )
+
+    training_data, test_data = select_features(training_data, training_target, test_data)
 
 
     c_range = [2**(x) for x in range(-5, 15)] # http://www.csie.ntu.edu.tw/~cjlin/papers/guide/guide.pdf page 5
     gamma_range = [2**(x) for x in range(-15, 3)] # http://www.csie.ntu.edu.tw/~cjlin/papers/guide/guide.pdf page 5
     desc_functions = ['ovo', 'ovr']
     
-    svm_params = {'kernel': ['poly','linear', 'rbf'], 
+    svm_params = {'kernel': ['poly', 'linear', 'rbf'], 
                     'gamma': gamma_range, 
                     'degree': range(5), 
                     'C': c_range, 
@@ -181,7 +191,7 @@ if __name__=="__main__":
                     
                 
                 
-    nodes_per_layer_range = range(26, num_features, 5)
+    nodes_per_layer_range = range(26, len(training_data[0]), 5)
 #    nodes_per_layer_range = range(1, 50)
     alpha_range = [10**x for x in range(-8,3)] # regularization term: margin width kinda thing, prevent overfitting
     learning_rate_init_range = [10**x for x in range(-6,0)] # http://www.uio.no/studier/emner/matnat/ifi/INF3490/h15/beskjeder/question-about-mlp-learning-rate.html 
@@ -216,7 +226,6 @@ if __name__=="__main__":
 #    ])
 #    clf.fit(X, y)    
     
-    training_data, test_data = select_features(training_data, training_target, test_data)
     
     trained_clfs = []
     
