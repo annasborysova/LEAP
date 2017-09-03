@@ -1,5 +1,5 @@
 import glob, pickle, os, sys
-import string, utils
+import string, utils, process_frames
 from operator import add
 
 
@@ -43,8 +43,9 @@ def process_gesture_folder(foldername, frames_per_gesture, separate_frames, feat
         
         # for every frame in a gesture
         for filename in glob.glob(os.path.join(foldername, "*" + feature_set_type + ".features")):
-            
-            # get features from frame
+        
+
+#             get features from frame
             with open(filename, 'rb') as fp:
                 frame_features = pickle.load(fp)
 
@@ -63,7 +64,10 @@ def process_gesture_folder(foldername, frames_per_gesture, separate_frames, feat
         else:
             return []
 
-
+def get_feature_names(path, feature_set_type):
+    with open(os.path.join(path, feature_set_type + ".feature_names"), 'rb') as fp:
+        return pickle.load(fp)
+    
 
 def get_average(path, feature_set_type):
     for foldername in sorted(glob.glob(os.path.join(path, "Leap_*"))):

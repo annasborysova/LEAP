@@ -20,13 +20,13 @@ def read_frame(filename):
     new_frame.deserialize((leap_byte_array, len(data)))
     return new_frame
 
-def is_primitive(thing):
-    return type(thing) in (int, float)
 
 valid_features = ('center', 'next_joint', 'prev_joint', 'hands', 'fingers', 'arm', 'basis', 'x_basis', 'y_basis', 'origin', 'z_basis', 'x', 'y', 'z', 'pitch', 'roll', 'yaw', 'confidence', 'direction', 'grab_strength', 'palm_normal', 'palm_position', 'palm_velocity', 'pinch_strength', 'sphere_center', 'sphere_radius', 'stabilized_palm_position', 'stabilized_tip_position', 'tip_position', 'tip_velocity', 'wrist_position')
+#valid_features = ('origin', 'center', 'hands', 'fingers', 'arm', 'basis', 'x_basis', 'y_basis', 'z_basis', 'x', 'y', 'z', 'pitch', 'roll', 'yaw', 'confidence', 'direction', 'grab_strength', 'palm_normal', 'palm_velocity', 'pinch_strength', 'sphere_radius', 'tip_velocity')
+#print(list(set(valid_features_1) - set(valid_features)))
 
 
-def flatten(obj):
+def flatten_old(obj):
     l = [val for val in dir(obj) if val in valid_features]
     for el in l:
         for sub in flatten(getattr(obj, el)):
@@ -34,14 +34,31 @@ def flatten(obj):
     if isinstance(obj, float):
         yield obj
 
-def get_features(hand):
-    return itertools.chain(flatten(hand), get_normalised_fingers_features(hand))
-    
-def get_hand_features(hand):
-    return flatten(hand)
+def flatten(tup):
+    obj = tup[0]
+    name = tup[1]
+    l = [val for val in dir(obj) if val in valid_features]
+    for el in l:
+        for sub in flatten((getattr(obj, el), name+"_"+el)):
+            yield sub
+    if isinstance(obj, float):
+        yield tup
 
-def get_finger_features(hand):
-    return get_normalised_fingers_features(hand)
+def get_features(hand, labels=False):
+    hand_tup = (hand, 'hand')
+    features = itertools.chain(flatten(hand_tup), get_normalised_fingers_features(hand))
+    return features if labels else zip(*features)[0]
+
+    
+def get_hand_features(hand, labels=False):
+    hand = (hand, 'hand')
+    features = flatten(hand)
+    return features if labels else zip(*features)[0]
+
+
+def get_finger_features(hand, labels=False):
+    features = get_normalised_fingers_features(hand)
+    return features if labels else zip(*features)[0]
 
 def get_normalised_fingers_features(hand):
     hand_x_basis = hand.basis.x_basis
@@ -51,7 +68,12 @@ def get_normalised_fingers_features(hand):
     hand_transform = Leap.Matrix(hand_x_basis, hand_y_basis, hand_z_basis, hand_origin)
     hand_transform = hand_transform.rigid_inverse()
 
-    features = []
+    trans_wrist = (hand_transform.transform_point(hand.wrist_position), 'hand_wrist_position_transformed')
+    trans_sphere = (hand_transform.transform_point(hand.sphere_center), 'Hand_sphere_center_transformed') 
+    
+
+    features = itertools.chain(flatten(trans_wrist), flatten(trans_sphere))
+#    features = []
     # force some sort of order for ML
     for finger in hand.fingers:
         if finger.type == 0:
@@ -65,23 +87,31 @@ def get_normalised_fingers_features(hand):
         elif finger.type == 4:
             pinky = process_finger(finger, hand_transform)
 
-    features = itertools.chain(thumb, index, middle, ring, pinky)
+    features = itertools.chain(features, thumb, index, middle, ring, pinky)
 
     return features
 
+
 def process_finger(finger, hand_transform):
         # flatten finger with pointable features
-        features = flatten(finger)
+        name = 'hand_finger_' + str(finger.type)
+        features = flatten((finger, name))
         for i in range(4):
-            features = itertools.chain(features, flatten(finger.bone(i)))
+            features = itertools.chain(features, process_bone(finger.bone(i), hand_transform, name))
 
-        transformed_position = hand_transform.transform_point(finger.tip_position)
-        transformed_direction = hand_transform.transform_direction(finger.direction) 
-#        transformed_position = finger.tip_position
-#        transformed_direction = finger.direction
-        features = itertools.chain(features, flatten(transformed_position), flatten(transformed_direction))
+        transformed_position = (hand_transform.transform_point(finger.tip_position), name + '_tip_position_transformed')
+        trans_stab_tip = (hand_transform.transform_point(finger.stabilized_tip_position), name + '_stabilized_tip_position_transformed')
+        features = itertools.chain(features, flatten(transformed_position), flatten(trans_stab_tip))
         
         return features
+
+def process_bone(bone, hand_transform, finger_name):
+    name = finger_name + '_bone_' + str(bone.type)
+    features = flatten((bone, name))
+    transformed_prev = (hand_transform.transform_point(bone.prev_joint), name + '_prev_joint_transformed')
+    transformed_next = (hand_transform.transform_point(bone.next_joint), name + '_next_joint_transformed')
+    features = itertools.chain(features, flatten(transformed_prev), flatten(transformed_next))
+    return features
 
 def plot_confusion_matrix(cm, classes,
                           normalize=False,
