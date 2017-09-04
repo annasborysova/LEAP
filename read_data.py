@@ -67,6 +67,10 @@ def process_gesture_folder(foldername, frames_per_gesture, separate_frames, feat
 def get_feature_names(path, feature_set_type):
     with open(os.path.join(path, feature_set_type + ".feature_names"), 'rb') as fp:
         return pickle.load(fp)
+
+def load_selected_features():
+    with open(os.path.join("50features.txt"), 'rb') as fp:
+        return pickle.load(fp)
     
 
 def get_average(path, feature_set_type):

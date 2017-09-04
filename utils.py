@@ -69,7 +69,7 @@ def get_normalised_fingers_features(hand):
     hand_transform = hand_transform.rigid_inverse()
 
     trans_wrist = (hand_transform.transform_point(hand.wrist_position), 'hand_wrist_position_transformed')
-    trans_sphere = (hand_transform.transform_point(hand.sphere_center), 'Hand_sphere_center_transformed') 
+    trans_sphere = (hand_transform.transform_point(hand.sphere_center), 'hand_sphere_center_transformed') 
     
 
     features = itertools.chain(flatten(trans_wrist), flatten(trans_sphere))

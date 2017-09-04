@@ -8,10 +8,6 @@ def process_frame(frame, feature_set_type='all', labels=False):
         return []
     if feature_set_type == 'all':
         return utils.get_features(frame.hands[0], labels=labels)    
-#    if feature_set_type == 'all_transf':
-#        return utils.get_features(frame.hands[0])
-    if feature_set_type == 'all_raw':
-        return utils.get_features(frame.hands[0], labels=labels)
     if feature_set_type == 'fingers_only':
         return utils.get_finger_features(frame.hands[0], labels=labels)
     if feature_set_type == 'hands_only':
@@ -45,7 +41,7 @@ def rewrite(path, feature_set_type):
 def rewrite_all():
 #    paths = ["Leap_Data", os.path.join("Leap_Data", "DataGath2"), os.path.join("Leap_Data", "DataGath3"), os.path.join("Leap_Data", "Participant 0")]
 #    paths = [os.path.join("Leap_Data", "Participant 0")]
-    paths = [os.path.join("Leap_Data", "Legit_Data", "Participant " + str(x), "Leap") for x in range(48, 50)]
+    paths = [os.path.join("Leap_Data", "Legit_Data", "Participant " + str(x), "Leap") for x in range(0, 3)]
 #    paths = [os.path.join("Leap_Data", "Legit_Data", "Participant 12", "Leap")]
 
 #    feature_set_types = ['fingers_only', 'hands_only', 'all']

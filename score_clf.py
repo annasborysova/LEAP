@@ -7,9 +7,8 @@ from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.feature_selection import SelectKBest, VarianceThreshold, RFE, SelectFromModel
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from sklearn.ensemble import VotingClassifier, ExtraTreesClassifier, RandomForestClassifier
-from sklearn.gaussian_process import GaussianProcessClassifier
-import os, string, time, logging
-from read_data import read_data, get_feature_names
+import os, string, time, logging, pickle
+from read_data import read_data, get_feature_names, load_selected_features
 from sklearn.pipeline import Pipeline
 import numpy as np
 
@@ -25,36 +24,38 @@ fh.setLevel(logging.DEBUG)
 log.addHandler(fh)
 
 
-def select_features(training_data, training_target, test_data, feature_labels):
+def select_features(training_data, training_target, test_data, feature_labels, fresh=False):
     # remove featuers with 0 variance, only changes at threshold 1.... check with more data  
     training_data, test_data, feature_labels = remove_0_var(training_data, training_target, test_data, feature_labels)
     training_data, test_data = scale(training_data, test_data)
-#    from sklearn.linear_model import LassoCV
     
-    selector = SelectKBest(k=500)
-    training_data = selector.fit_transform(training_data, training_target)
-    test_data = selector.transform(test_data)
-    feature_labels = selector.transform(feature_labels)
+    if fresh:
+        selector = SelectKBest(k=500)
+        training_data = selector.fit_transform(training_data, training_target)
+        test_data = selector.transform(test_data)
+        feature_labels = selector.transform(feature_labels)
+        
+        selector = RFE(ExtraTreesClassifier(), 50)
+        training_data = selector.fit_transform(training_data, training_target)
+        test_data = selector.transform(test_data)
+        feature_labels = selector.transform(feature_labels)
+        log.info(selector)
 
-#    feature_indeces = [x for x, feature in enumerate(feature_labels[0]) if 'finger' in feature]
-#    feature_labels = [[each_list[i] for i in feature_indeces] for each_list in feature_labels]
-#    training_data = [[each_list[i] for i in feature_indeces] for each_list in training_data]
-#    test_data = [[each_list[i] for i in feature_indeces] for each_list in test_data]
-
-#    selector = SelectFromModel(ExtraTreesClassifier(), threshold=0.002)
-#    selector = SelectFromModel(LassoCV())
-    selector = RFE(ExtraTreesClassifier(), 50)
-    training_data = selector.fit_transform(training_data, training_target)
-    test_data = selector.transform(test_data)
-    feature_labels = selector.transform(feature_labels)
-
-
+    else:
     
-    log.info(selector)
+        loaded_labels = list(load_selected_features())
+        feature_indeces = [x for x, feature in enumerate(feature_labels[0]) if feature in loaded_labels]
+        feature_labels = [[each_list[i] for i in feature_indeces] for each_list in feature_labels]
+        training_data = [[each_list[i] for i in feature_indeces] for each_list in training_data]
+        test_data = [[each_list[i] for i in feature_indeces] for each_list in test_data]
+
+        log.info("last run features")
+
+
     log.info("number of features: {}".format(len(training_data[0])))
     print("number of features: {}".format(len(training_data[0])))
     log.info("features selected: {}".format(feature_labels[0]))
-    print("features selected: {}".format(feature_labels[0]))
+    print("features selected: {}".format(feature_labels[0]))    
 
     
     return training_data, test_data, feature_labels
@@ -96,8 +97,29 @@ def scale(training_data, test_data):
     test_data = preprocessing.scale(test_data)
     return training_data, test_data
 
+def load_paths(paths, fresh, frames_per_gesture, separate_frames, feature_set_type):
+    all_data = []
+    all_target = []
+    for path in paths:
+        print("loading path {}".format(path))
+        if fresh:
+            data, target = read_data(path, frames_per_gesture, separate_frames, feature_set_type)
+            try:
+                with open(path[:-4] + "Participant.data", 'wb') as fp:
+                    pickle.dump((data, target), fp)
+            except IOError:
+                continue
+        else:
+            try:
+                with open(path[:-4] + "Participant.data", 'rb') as fp:
+                    data, target = pickle.load(fp)
+            except IOError:
+                continue
+        all_data.extend(data)
+        all_target.extend(target)
+    return all_data, all_target
 
-def get_train_test_split(frames_per_gesture, separate_frames, feature_set_type="all", train_paths=[], test_paths=[], use_auto_split=False, average=False):
+def get_train_test_split(frames_per_gesture, separate_frames, fresh=False, feature_set_type="all", train_paths=[], test_paths=[], use_auto_split=False, average=False):
 
     log.info('Data variables: \n'
             '\t train_paths: {}, \n'
@@ -115,19 +137,8 @@ def get_train_test_split(frames_per_gesture, separate_frames, feature_set_type="
                     feature_set_type,
                     average))
 
-    training_data = []
-    training_target = []
-    for path in train_paths:
-        data, target = read_data(path, frames_per_gesture, separate_frames, feature_set_type)
-        training_data.extend(data)
-        training_target.extend(target)
-        
-    test_data = []
-    test_target = []
-    for path in test_paths:
-        data, target = read_data(path, frames_per_gesture, separate_frames, feature_set_type)
-        test_data.extend(data)
-        test_target.extend(target)
+    training_data, training_target = load_paths(train_paths, fresh, frames_per_gesture, separate_frames, feature_set_type)
+    test_data, test_target = load_paths(test_paths, fresh, frames_per_gesture, separate_frames, feature_set_type)
 
     if use_auto_split:
         data = test_data + training_data
@@ -141,15 +152,15 @@ if __name__=="__main__":
 #    train_paths = [os.path.join("Leap_Data", "DataGath1"), os.path.join("Leap_Data", "DataGath3"), os.path.join("Leap_Data", "Participant 0")]
 #    test_paths = [os.path.join("Leap_Data", "DataGath2")]
     test_participant = 12
-    train_paths = [os.path.join("Leap_Data", "Legit_Data", "Participant " + str(x), "Leap") for x in range(0, test_participant) + range(test_participant+1,50)]
+#    train_paths = [os.path.join("Leap_Data", "Legit_Data", "Participant " + str(x), "Leap") for x in range(0, test_participant) + range(test_participant+1,50)]
     test_paths = [os.path.join("Leap_Data", "Legit_Data", "Participant " + str(test_participant), "Leap")]
-#    train_paths = []
+    train_paths = []
     fpg = 1
     training_data, test_data, training_target, test_target = get_train_test_split(
             train_paths=train_paths, 
             test_paths=test_paths, 
-#            use_auto_split=True, 
-            use_auto_split=False, 
+            use_auto_split=True, 
+#            use_auto_split=False, 
             frames_per_gesture=fpg, 
             separate_frames=False, 
             feature_set_type='all',
@@ -158,6 +169,9 @@ if __name__=="__main__":
     
     all_feature_labels = get_feature_names(test_paths[0], 'all') * fpg
     training_data, test_data, feature_labels = select_features(training_data, training_target, test_data, [all_feature_labels])
+    
+
+
 
 
     c_range = [2**(x) for x in range(-5, 15)] # http://www.csie.ntu.edu.tw/~cjlin/papers/guide/guide.pdf page 5
@@ -218,7 +232,7 @@ if __name__=="__main__":
     #radius neighbours not effective in higher dimensions
     mlp_params = {
                     'hidden_layer_sizes': [(x,) for x in nodes_per_layer_range],
-#                    'activation': ('identity', 'logistic', 'tanh', 'relu'),
+                    'activation': ('identity', 'logistic', 'tanh', 'relu'),
                     'activation': ('logistic', 'tanh'),
                     'learning_rate_init': learning_rate_init_range,
                     'alpha': alpha_range,
@@ -233,13 +247,13 @@ if __name__=="__main__":
 #    log.info("svm_params: {}, \n knn_params: {}, \n mlp_params: {}".format(svm_params, knn_params, mlp_params))
     
     classifiers = {        
-            'SVM': (svm.SVC(probability=True, kernel='rbf', decision_function_shape='ovo'), svm_params),
-            'SVM no tuning': (svm.SVC(probability=True, kernel='rbf', decision_function_shape='ovo'), {}),
+#            'SVM': (svm.SVC(probability=True, kernel='rbf', decision_function_shape='ovo'), svm_params),
+#            'SVM no tuning': (svm.SVC(probability=True, kernel='rbf', decision_function_shape='ovo'), {}),
 
-            'kNN': (neighbors.KNeighborsClassifier(weights='distance'), knn_params),
-            'kNN no tuning': (neighbors.KNeighborsClassifier(weights='distance'), {}),
+#            'kNN': (neighbors.KNeighborsClassifier(weights='distance'), knn_params),
+#            'kNN no tuning': (neighbors.KNeighborsClassifier(weights='distance'), {}),
 
-            'MLP': (MLPClassifier(), mlp_params),
+#            'MLP': (MLPClassifier(), mlp_params),
             'MLP no tuning': (MLPClassifier(), {}),
 
 #            'ETC': (ExtraTreesClassifier(), {}),
@@ -272,10 +286,10 @@ if __name__=="__main__":
         test_clf(name, fitted_clf, test_data, test_target)
     
     
-    voting_clf = VotingClassifier(estimators=trained_clfs, voting='soft')
-    voting_clf.fit(training_data, training_target)
+#    voting_clf = VotingClassifier(estimators=trained_clfs, voting='soft')
+#    voting_clf.fit(training_data, training_target)
 
-    test_clf("voting", voting_clf, test_data, test_target)
+#    test_clf("voting", voting_clf, test_data, test_target)
     
     
 
