@@ -44,7 +44,6 @@ def process_gesture_folder(foldername, frames_per_gesture, separate_frames, feat
         # for every frame in a gesture
         for filename in glob.glob(os.path.join(foldername, "*" + feature_set_type + ".features")):
         
-
 #             get features from frame
             with open(filename, 'rb') as fp:
                 frame_features = pickle.load(fp)

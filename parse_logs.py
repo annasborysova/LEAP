@@ -28,13 +28,15 @@ def get_average(param, clf):
 
 for logfile in glob.glob(os.path.join(".", "logs", "*.txt")):
     for i, line in enumerate(open(logfile)):
-        if "chosen features" in line and len(line) > 24 and "MLP" in line:
+        if "chosen features" in line and len(line) > 24 and "kNN" in line:
             print(line)
 
-get_average('tanh', 'MLP')   
-get_average('logistic', 'MLP')
-get_average('relu', 'MLP')
-get_average('identity', 'MLP')
+get_average("p': 1", 'kNN')   
+get_average("p': 2", 'kNN')   
+get_average("p': 3", 'kNN')   
+get_average("p': 4", 'kNN')   
+
+
 
 #get_average('constant', 'MLP')   
 #get_average('invscaling', 'MLP')

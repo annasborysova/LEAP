@@ -3,13 +3,12 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 from sklearn.naive_bayes import GaussianNB, BernoulliNB
 from sklearn.neural_network import MLPClassifier
-from sklearn.metrics import classification_report, confusion_matrix
-from sklearn.feature_selection import SelectKBest, VarianceThreshold, RFE, SelectFromModel
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score, precision_score, recall_score
+from sklearn.feature_selection import SelectKBest, VarianceThreshold, RFE, SelectFromModel, mutual_info_classif
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from sklearn.ensemble import VotingClassifier, ExtraTreesClassifier, RandomForestClassifier
 import os, string, time, logging, pickle
 from read_data import read_data, get_feature_names, load_selected_features
-from sklearn.pipeline import Pipeline
 import numpy as np
 
 
@@ -34,8 +33,9 @@ def select_features(training_data, training_target, test_data, feature_labels, f
         training_data = selector.fit_transform(training_data, training_target)
         test_data = selector.transform(test_data)
         feature_labels = selector.transform(feature_labels)
-        
-        selector = RFE(ExtraTreesClassifier(), 50)
+        log.info(selector)
+
+        selector = SelectFromModel(ExtraTreesClassifier(), threshold=0.002)
         training_data = selector.fit_transform(training_data, training_target)
         test_data = selector.transform(test_data)
         feature_labels = selector.transform(feature_labels)
@@ -55,7 +55,7 @@ def select_features(training_data, training_target, test_data, feature_labels, f
     log.info("number of features: {}".format(len(training_data[0])))
     print("number of features: {}".format(len(training_data[0])))
     log.info("features selected: {}".format(feature_labels[0]))
-    print("features selected: {}".format(feature_labels[0]))    
+#    print("features selected: {}".format(feature_labels[0]))    
 
     
     return training_data, test_data, feature_labels
@@ -71,12 +71,19 @@ def optimize_params(clf, params, training_data, training_target):
         return rand_scv.fit(training_data, training_target)
         
 
-def test_clf(name, clf, test_data, test_target):
+def test_clf(name, clf, test_data, test_target, results):
     gesture_pred = clf.predict(test_data)
     target_names = list(string.ascii_lowercase)
-    score = clf.score(test_data, test_target)
-    print "CLASSIFIER: {} {}".format(name, score)
-    log.info("CLASSIFIER: {} {}".format(name, score))
+    accuracy = accuracy_score(test_target, gesture_pred)
+    precision = precision_score(test_target, gesture_pred, average='weighted')
+    recall = recall_score(test_target, gesture_pred, average='weighted')
+    results[name] = {}
+    results[name]['accuracy'] = accuracy
+    results[name]['precision'] = precision
+    results[name]['recall'] = recall
+    
+    print "CLASSIFIER: {} {}".format(name, accuracy)
+    log.info("CLASSIFIER: {} {}".format(name, accuracy))
 
     report = classification_report(test_target, gesture_pred, target_names=target_names)
     cm = confusion_matrix(test_target, gesture_pred, target_names)
@@ -101,7 +108,7 @@ def load_paths(paths, fresh, frames_per_gesture, separate_frames, feature_set_ty
     all_data = []
     all_target = []
     for path in paths:
-        print("loading path {}".format(path))
+#        print("loading path {}".format(path))
         if fresh:
             data, target = read_data(path, frames_per_gesture, separate_frames, feature_set_type)
             try:
@@ -148,29 +155,29 @@ def get_train_test_split(frames_per_gesture, separate_frames, fresh=False, featu
     return training_data, test_data, training_target, test_target
 
 
-if __name__=="__main__":
-#    train_paths = [os.path.join("Leap_Data", "DataGath1"), os.path.join("Leap_Data", "DataGath3"), os.path.join("Leap_Data", "Participant 0")]
-#    test_paths = [os.path.join("Leap_Data", "DataGath2")]
-    test_participant = 12
-#    train_paths = [os.path.join("Leap_Data", "Legit_Data", "Participant " + str(x), "Leap") for x in range(0, test_participant) + range(test_participant+1,50)]
+    
+def run_experiment(test_participant, fpg=2, quick_test=False):
+    results = {}    
+    
+    train_paths = [os.path.join("Leap_Data", "Legit_Data", "Participant " + str(x), "Leap") for x in range(0, test_participant) + range(test_participant+1,50)]
     test_paths = [os.path.join("Leap_Data", "Legit_Data", "Participant " + str(test_participant), "Leap")]
-    train_paths = []
-    fpg = 1
     training_data, test_data, training_target, test_target = get_train_test_split(
-            train_paths=train_paths, 
+            train_paths= [] if quick_test else train_paths, 
             test_paths=test_paths, 
-            use_auto_split=True, 
-#            use_auto_split=False, 
+            use_auto_split=not quick_test, 
             frames_per_gesture=fpg, 
             separate_frames=False, 
             feature_set_type='all',
-            average=False
+            average=False,
+            fresh=True,
         )
     
     all_feature_labels = get_feature_names(test_paths[0], 'all') * fpg
-    training_data, test_data, feature_labels = select_features(training_data, training_target, test_data, [all_feature_labels])
-    
-
+    start = time.clock()
+    training_data, test_data, feature_labels = select_features(training_data, training_target, test_data, [all_feature_labels], fresh=True)
+    end = time.clock()
+    log.info("feature selection took {} seconds".format(end - start))
+    print("feature selection took {} seconds".format(end - start))
 
 
 
@@ -253,21 +260,12 @@ if __name__=="__main__":
 #            'kNN': (neighbors.KNeighborsClassifier(weights='distance'), knn_params),
 #            'kNN no tuning': (neighbors.KNeighborsClassifier(weights='distance'), {}),
 
-#            'MLP': (MLPClassifier(), mlp_params),
-            'MLP no tuning': (MLPClassifier(), {}),
+            'MLP': (MLPClassifier(), mlp_params),
+#            'MLP no tuning': (MLPClassifier(), {}),
 
 #            'ETC': (ExtraTreesClassifier(), {}),
 #            'RFC': (RandomForestClassifier(), {}),
         }
-    
-    
-#    clf = Pipeline([
-#      ('remove_0_var', VarianceThreshold()),
-#      ('scale', preprocessing.StandardScaler()),
-#      ('select_features', SelectKBest(k=num_features)),
-#      ('classification', RandomForestClassifier())
-#    ])
-#    clf.fit(X, y)    
     
     
     trained_clfs = []
@@ -276,25 +274,46 @@ if __name__=="__main__":
         clf = clf_data[0]
         params = clf_data[1]
               
+        start = time.clock()
         fitted_clf = optimize_params(clf, params, training_data, training_target)
+        end = time.clock()
+        log.info("parameter tuning {} took {} seconds".format(name, end - start))
+        print("parameter tuning for {} took {} seconds".format(name, end - start))
 
         log.info("{} chosen parameters: {}".format(name, fitted_clf.best_params_))
         print("{} chosen parameters: {}".format(name, fitted_clf.best_params_))
     
         trained_clfs.append((name, fitted_clf.best_estimator_))
         
-        test_clf(name, fitted_clf, test_data, test_target)
+        start = time.clock()
+        test_clf(name, fitted_clf, test_data, test_target, results)
+        end = time.clock()
+        log.info("testing classifier {} took {} seconds".format(name, end - start))
+        print("testing classifier {} took {} seconds".format(name, end - start))
     
     
-#    voting_clf = VotingClassifier(estimators=trained_clfs, voting='soft')
-#    voting_clf.fit(training_data, training_target)
+    voting_clf = VotingClassifier(estimators=trained_clfs, voting='soft')
+    voting_clf.fit(training_data, training_target)
 
-#    test_clf("voting", voting_clf, test_data, test_target)
     
-    
+    start = time.clock()
+    test_clf("voting", voting_clf, test_data, test_target, results)
+    end = time.clock()
+    log.info("testing classifier {} took {} seconds".format("voting", end - start))
+    print("testing classifier {} took {} seconds".format("voting", end - start))
 
-    
-    
+    return results
+
+if __name__=="__main__":
+#    valid_participants = range(3) + [x for x in range(12, 49) if x not in [13, 20, 24, 25, 34]]
+    valid_participants = [12]
+    all_results = []
+    for x in valid_participants:
+        all_results.append(run_experiment(x))
+        
+    print(all_results)
+        
     import winsound
     winsound.Beep(500,500)
     winsound.Beep(500,500)
+    
