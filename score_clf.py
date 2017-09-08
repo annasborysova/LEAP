@@ -164,7 +164,7 @@ def run_experiment(test_participant, fpg=2, quick_test=False):
     training_data, test_data, training_target, test_target = get_train_test_split(
             train_paths= [] if quick_test else train_paths, 
             test_paths=test_paths, 
-            use_auto_split=not quick_test, 
+            use_auto_split=quick_test, 
             frames_per_gesture=fpg, 
             separate_frames=False, 
             feature_set_type='all',
