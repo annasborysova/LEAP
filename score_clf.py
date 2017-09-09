@@ -35,7 +35,7 @@ def select_features(training_data, training_target, test_data, feature_labels, f
         feature_labels = selector.transform(feature_labels)
         log.info(selector)
 
-        selector = SelectFromModel(ExtraTreesClassifier(), threshold=0.002)
+        selector = RFE(ExtraTreesClassifier(), n_features_to_select=50)
         training_data = selector.fit_transform(training_data, training_target)
         test_data = selector.transform(test_data)
         feature_labels = selector.transform(feature_labels)
@@ -104,6 +104,17 @@ def scale(training_data, test_data):
     test_data = preprocessing.scale(test_data)
     return training_data, test_data
 
+
+def remove_low_confidence(confidence, data, target, feature_labels):
+    # account for the multiframed
+    confidence_index = feature_labels.index("hand_confidence")
+    for i, gesture in enumerate(data):
+        if gesture[confidence_index] <= confidence:
+            del data[i]
+            del target[i]
+    
+
+
 def load_paths(paths, fresh, frames_per_gesture, separate_frames, feature_set_type):
     all_data = []
     all_target = []
@@ -154,13 +165,15 @@ def get_train_test_split(frames_per_gesture, separate_frames, fresh=False, featu
 
     return training_data, test_data, training_target, test_target
 
-
     
-def run_experiment(test_participant, fpg=2, quick_test=False):
+def run_experiment(test_participant, fpg=2, quick_test=True, fresh=True):
     results = {}    
     
     train_paths = [os.path.join("Leap_Data", "Legit_Data", "Participant " + str(x), "Leap") for x in range(0, test_participant) + range(test_participant+1,50)]
-    test_paths = [os.path.join("Leap_Data", "Legit_Data", "Participant " + str(test_participant), "Leap")]
+    test_paths = [os.path.join("Leap_Data", "Legit_Data", "Participant " + str(x), "Leap") for x in [0,1,2]]
+#    test_paths = [os.path.join("Leap_Data", "Legit_Data", "Participant " + str(test_participant), "Leap")]
+    
+    start = time.clock()
     training_data, test_data, training_target, test_target = get_train_test_split(
             train_paths= [] if quick_test else train_paths, 
             test_paths=test_paths, 
@@ -169,15 +182,25 @@ def run_experiment(test_participant, fpg=2, quick_test=False):
             separate_frames=False, 
             feature_set_type='all',
             average=False,
-            fresh=True,
+            fresh=fresh,
         )
+    end = time.clock()
+    log.info("loading data took {} seconds".format(end - start))
+    log.info("loaded top 2 confidence frames...")
+
     
     all_feature_labels = get_feature_names(test_paths[0], 'all') * fpg
+#    print("train data before confidence pruning: {}".format(len(training_target)))
+#    print("test data before confidence pruning: {}".format(len(test_target)))
+#    remove_low_confidence(0.5, training_data, training_target, all_feature_labels)
+#    remove_low_confidence(0.5, test_data, test_target, all_feature_labels)
+#    print("train data after pruning: {}".format(len(training_target)))
+#    print("test data after pruning: {}".format(len(test_target)))
+
     start = time.clock()
-    training_data, test_data, feature_labels = select_features(training_data, training_target, test_data, [all_feature_labels], fresh=True)
+    training_data, test_data, feature_labels = select_features(training_data, training_target, test_data, [all_feature_labels], fresh=fresh)
     end = time.clock()
     log.info("feature selection took {} seconds".format(end - start))
-    print("feature selection took {} seconds".format(end - start))
 
 
 
@@ -185,7 +208,9 @@ def run_experiment(test_participant, fpg=2, quick_test=False):
     lower_c = [2**(x) for x in range(-5, 7)]
     gamma_range = [2**(x) for x in range(-15, 3)] + ['auto'] # http://www.csie.ntu.edu.tw/~cjlin/papers/guide/guide.pdf page 5
     
-    svm_params = {  'gamma': gamma_range, 
+    svm_params = {  'kernel': ['poly', 'linear', 'rbf'],
+                    'degree': range(5),
+                    'gamma': gamma_range, 
                     'C': lower_c,}
     
     # maybe drop poly and sigmoid
@@ -229,21 +254,22 @@ def run_experiment(test_participant, fpg=2, quick_test=False):
                 
     
     if 26 > len(training_data[0]):
-        nodes_per_layer_range = range(len(training_data[0]), 26, 5)
+        nodes_per_layer_range = range(len(training_data[0]), 27, 1)
     else:
-        nodes_per_layer_range = range(26, len(training_data[0]), 5)
+        nodes_per_layer_range = range(26, len(training_data[0])+1, 1)
         
-#    nodes_per_layer_range = range(1, 50)
+        
+    nodes_per_layer_range = range(20, 200, 5)
     alpha_range = np.logspace(-5, 3, 5) # regularization term: margin width kinda thing, prevent overfitting
-    learning_rate_init_range = [10**x for x in range(-6,0)] # http://www.uio.no/studier/emner/matnat/ifi/INF3490/h15/beskjeder/question-about-mlp-learning-rate.html 
+    learning_rate_init_range = [10**x for x in range(-6,1)] # http://www.uio.no/studier/emner/matnat/ifi/INF3490/h15/beskjeder/question-about-mlp-learning-rate.html 
     #radius neighbours not effective in higher dimensions
     mlp_params = {
                     'hidden_layer_sizes': [(x,) for x in nodes_per_layer_range],
-                    'activation': ('identity', 'logistic', 'tanh', 'relu'),
+#                    'activation': ('identity', 'logistic', 'tanh', 'relu'),
                     'activation': ('logistic', 'tanh'),
                     'learning_rate_init': learning_rate_init_range,
                     'alpha': alpha_range,
-                    'solver': ['sgd', 'adam'],
+                    'solver': ['lbfgs', 'sgd', 'adam'],
                     'learning_rate': ['constant', 'invscaling', 'adaptive'],
                 }
                 
@@ -254,14 +280,14 @@ def run_experiment(test_participant, fpg=2, quick_test=False):
 #    log.info("svm_params: {}, \n knn_params: {}, \n mlp_params: {}".format(svm_params, knn_params, mlp_params))
     
     classifiers = {        
-#            'SVM': (svm.SVC(probability=True, kernel='rbf', decision_function_shape='ovo'), svm_params),
-#            'SVM no tuning': (svm.SVC(probability=True, kernel='rbf', decision_function_shape='ovo'), {}),
+            'SVM': (svm.SVC(probability=True, decision_function_shape='ovo'), svm_params),
+            'SVM no tuning': (svm.SVC(probability=True, kernel='rbf', decision_function_shape='ovo'), {}),
 
-#            'kNN': (neighbors.KNeighborsClassifier(weights='distance'), knn_params),
-#            'kNN no tuning': (neighbors.KNeighborsClassifier(weights='distance'), {}),
+            'kNN': (neighbors.KNeighborsClassifier(weights='distance'), knn_params),
+            'kNN no tuning': (neighbors.KNeighborsClassifier(weights='distance'), {}),
 
             'MLP': (MLPClassifier(), mlp_params),
-#            'MLP no tuning': (MLPClassifier(), {}),
+            'MLP no tuning': (MLPClassifier(), {}),
 
 #            'ETC': (ExtraTreesClassifier(), {}),
 #            'RFC': (RandomForestClassifier(), {}),
@@ -278,10 +304,8 @@ def run_experiment(test_participant, fpg=2, quick_test=False):
         fitted_clf = optimize_params(clf, params, training_data, training_target)
         end = time.clock()
         log.info("parameter tuning {} took {} seconds".format(name, end - start))
-        print("parameter tuning for {} took {} seconds".format(name, end - start))
 
         log.info("{} chosen parameters: {}".format(name, fitted_clf.best_params_))
-        print("{} chosen parameters: {}".format(name, fitted_clf.best_params_))
     
         trained_clfs.append((name, fitted_clf.best_estimator_))
         
@@ -289,7 +313,6 @@ def run_experiment(test_participant, fpg=2, quick_test=False):
         test_clf(name, fitted_clf, test_data, test_target, results)
         end = time.clock()
         log.info("testing classifier {} took {} seconds".format(name, end - start))
-        print("testing classifier {} took {} seconds".format(name, end - start))
     
     
     voting_clf = VotingClassifier(estimators=trained_clfs, voting='soft')
@@ -300,20 +323,33 @@ def run_experiment(test_participant, fpg=2, quick_test=False):
     test_clf("voting", voting_clf, test_data, test_target, results)
     end = time.clock()
     log.info("testing classifier {} took {} seconds".format("voting", end - start))
-    print("testing classifier {} took {} seconds".format("voting", end - start))
 
     return results
 
 if __name__=="__main__":
+    import winsound
 #    valid_participants = range(3) + [x for x in range(12, 49) if x not in [13, 20, 24, 25, 34]]
-    valid_participants = [12]
+    valid_participants = [0]
     all_results = []
-    for x in valid_participants:
-        all_results.append(run_experiment(x))
-        
+    try:
+        for x in valid_participants:
+            all_results.append(run_experiment(x))
+            print("")
+            print("Test participant {}".format(x))
+            print(all_results)
+            print("")
+
+    except Exception:
+        winsound.Beep(1000,250)
+        winsound.Beep(500,250)
+        winsound.Beep(1000,250)
+        winsound.Beep(500,250)
+
+        raise
+
+    log.info(all_results)    
     print(all_results)
         
-    import winsound
     winsound.Beep(500,500)
     winsound.Beep(500,500)
     
