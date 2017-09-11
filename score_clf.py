@@ -330,7 +330,7 @@ def run_experiment(test_participant, valid_participants, fpg=1, quick_test=False
     return results
 
 if __name__=="__main__":
-    import winsound
+#    import winsound
     valid_participants = range(3) + [x for x in range(12, 49) if x not in [13, 20, 24, 25, 34]]
 #    valid_participants = [x for x in range(33, 49) if x not in [13, 20, 24, 25, 34]]
 #    valid_participants = [2,12,14]
@@ -344,10 +344,10 @@ if __name__=="__main__":
     except Exception:
         log.info("error! results so far: {}".format(all_results))
         print(all_results)
-        winsound.Beep(1000,250)
-        winsound.Beep(500,250)
-        winsound.Beep(1000,250)
-        winsound.Beep(500,250)
+#        winsound.Beep(1000,250)
+#        winsound.Beep(500,250)
+#        winsound.Beep(1000,250)
+#        winsound.Beep(500,250)
         
         raise
 
@@ -373,6 +373,6 @@ if __name__=="__main__":
     log.info("Averages: \n{}".format(averages))
     print(averages)
     
-    winsound.Beep(500,500)
-    winsound.Beep(500,500)
+#    winsound.Beep(500,500)
+#    winsound.Beep(500,500)
     
