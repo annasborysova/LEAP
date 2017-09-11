@@ -123,13 +123,13 @@ def load_paths(paths, fresh, frames_per_gesture, separate_frames, feature_set_ty
         if fresh:
             data, target = read_data(path, frames_per_gesture, separate_frames, feature_set_type)
             try:
-                with open(path[:-4] + "Participant.data", 'wb') as fp:
+                with open(path[:-4] + "Participant_fpg_{}.data".format(frames_per_gesture), 'wb') as fp:
                     pickle.dump((data, target), fp)
             except IOError:
                 continue
         else:
             try:
-                with open(path[:-4] + "Participant.data", 'rb') as fp:
+                with open(path[:-4] + "Participant_fpg_{}.data".format(frames_per_gesture), 'rb') as fp:
                     data, target = pickle.load(fp)
             except IOError:
                 continue
@@ -166,13 +166,14 @@ def get_train_test_split(frames_per_gesture, separate_frames, fresh=False, featu
     return training_data, test_data, training_target, test_target
 
     
-def run_experiment(test_participant, fpg=2, quick_test=True, fresh=True):
+def run_experiment(test_participant, valid_participants, fpg=1, quick_test=False, fresh_paths=True, fresh_labels=True):
     results = {}    
     
-    train_paths = [os.path.join("Leap_Data", "Legit_Data", "Participant " + str(x), "Leap") for x in range(0, test_participant) + range(test_participant+1,50)]
-    test_paths = [os.path.join("Leap_Data", "Legit_Data", "Participant " + str(x), "Leap") for x in [0,1,2]]
-#    test_paths = [os.path.join("Leap_Data", "Legit_Data", "Participant " + str(test_participant), "Leap")]
-    
+    train_paths = [os.path.join("Leap_Data", "Legit_Data", "Participant " + str(x), "Leap") for x in valid_participants]
+#    train_paths = [os.path.join("Leap_Data", "Legit_Data", "Participant " + str(x), "Leap") for x in [1,2,12,13,14,15,16]]
+    test_paths = [os.path.join("Leap_Data", "Legit_Data", "Participant " + str(test_participant), "Leap")]
+    train_paths.remove(test_paths[0])
+
     start = time.clock()
     training_data, test_data, training_target, test_target = get_train_test_split(
             train_paths= [] if quick_test else train_paths, 
@@ -182,7 +183,7 @@ def run_experiment(test_participant, fpg=2, quick_test=True, fresh=True):
             separate_frames=False, 
             feature_set_type='all',
             average=False,
-            fresh=fresh,
+            fresh=fresh_paths,
         )
     end = time.clock()
     log.info("loading data took {} seconds".format(end - start))
@@ -197,8 +198,10 @@ def run_experiment(test_participant, fpg=2, quick_test=True, fresh=True):
 #    print("train data after pruning: {}".format(len(training_target)))
 #    print("test data after pruning: {}".format(len(test_target)))
 
+    print len(training_data[0])
+    print len(all_feature_labels)
     start = time.clock()
-    training_data, test_data, feature_labels = select_features(training_data, training_target, test_data, [all_feature_labels], fresh=fresh)
+    training_data, test_data, feature_labels = select_features(training_data, training_target, test_data, [all_feature_labels], fresh=fresh_labels)
     end = time.clock()
     log.info("feature selection took {} seconds".format(end - start))
 
@@ -328,28 +331,48 @@ def run_experiment(test_participant, fpg=2, quick_test=True, fresh=True):
 
 if __name__=="__main__":
     import winsound
-#    valid_participants = range(3) + [x for x in range(12, 49) if x not in [13, 20, 24, 25, 34]]
-    valid_participants = [0]
+    valid_participants = range(3) + [x for x in range(12, 49) if x not in [13, 20, 24, 25, 34]]
+#    valid_participants = [x for x in range(33, 49) if x not in [13, 20, 24, 25, 34]]
+#    valid_participants = [2,12,14]
     all_results = []
     try:
-        for x in valid_participants:
-            all_results.append(run_experiment(x))
-            print("")
-            print("Test participant {}".format(x))
-            print(all_results)
-            print("")
+        for x, participant in enumerate(valid_participants):
+            print("\nTest participant {}".format(participant))
+            all_results.append(run_experiment(participant, valid_participants, fresh_paths=False))
+
 
     except Exception:
+        log.info("error! results so far: {}".format(all_results))
+        print(all_results)
         winsound.Beep(1000,250)
         winsound.Beep(500,250)
         winsound.Beep(1000,250)
         winsound.Beep(500,250)
-
+        
         raise
 
     log.info(all_results)    
     print(all_results)
-        
+    
+  
+  
+    averages = {} 
+       
+    for result in all_results:
+        for name, clf_result in result.iteritems():
+            try:
+                a = averages[name]
+            except KeyError:
+                averages[name] = {}
+            for attribute, value in clf_result.iteritems():
+                try:
+                    averages[name][attribute] += value/len(all_results)
+                except KeyError:
+                    averages[name][attribute] = value/len(all_results)
+    
+    log.info("Averages: \n{}".format(averages))
+    print(averages)
+    
     winsound.Beep(500,500)
     winsound.Beep(500,500)
     
