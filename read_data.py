@@ -1,8 +1,5 @@
-import glob, pickle, os, sys, heapq
-import string, process_frames
-from operator import add, itemgetter
+import glob, pickle, os
 from itertools import chain
-
 
 
 def read_data(path, frames_per_gesture=1, separate_frames=False, feature_set_type="all", average=False):
