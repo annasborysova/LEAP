@@ -1,0 +1,975 @@
+Data variables: 
+	 train_paths: [], 
+	 test_paths: ['Leap_Data\\Legit_Data\\Participant 2\\Leap'], 
+	 use_auto_split: True, 
+	 frames_per_gesture: 1, 
+	 separate_frames: False, 
+	 feature_set_type: all 
+	 average: False
+loading data took 52.0829271817 seconds
+loaded top 2 confidence frames...
+scaling
+SelectKBest(k=500, score_func=<function f_classif at 0x000000000B4C4EB8>)
+RFE(estimator=ExtraTreesClassifier(bootstrap=False, class_weight=None, criterion='gini',
+           max_depth=None, max_features='auto', max_leaf_nodes=None,
+           min_impurity_split=1e-07, min_samples_leaf=1,
+           min_samples_split=2, min_weight_fraction_leaf=0.0,
+           n_estimators=10, n_jobs=1, oob_score=False, random_state=None,
+           verbose=0, warm_start=False),
+  n_features_to_select=50, step=1, verbose=0)
+number of features: 50
+features selected: ['hand_finger_0_bone_0_basis_y_basis_pitch'
+ 'hand_finger_0_bone_1_basis_y_basis_z'
+ 'hand_finger_0_bone_1_basis_z_basis_pitch'
+ 'hand_finger_0_bone_1_basis_z_basis_z'
+ 'hand_finger_0_bone_1_direction_pitch' 'hand_finger_0_bone_1_direction_y'
+ 'hand_finger_0_bone_1_direction_z'
+ 'hand_finger_0_bone_1_next_joint_transformed_roll'
+ 'hand_finger_0_bone_2_basis_x_basis_z'
+ 'hand_finger_0_bone_2_basis_y_basis_z'
+ 'hand_finger_0_bone_2_basis_z_basis_x'
+ 'hand_finger_0_bone_2_direction_roll' 'hand_finger_0_bone_2_direction_y'
+ 'hand_finger_0_bone_2_prev_joint_transformed_x'
+ 'hand_finger_0_bone_3_next_joint_transformed_pitch'
+ 'hand_finger_0_tip_position_transformed_roll'
+ 'hand_finger_0_stabilized_tip_position_transformed_roll'
+ 'hand_finger_0_stabilized_tip_position_transformed_x'
+ 'hand_finger_1_bone_0_direction_z' 'hand_finger_1_bone_1_basis_z_basis_z'
+ 'hand_finger_1_bone_1_next_joint_transformed_roll'
+ 'hand_finger_1_bone_1_next_joint_transformed_z'
+ 'hand_finger_1_bone_2_basis_y_basis_z'
+ 'hand_finger_1_bone_2_prev_joint_transformed_roll'
+ 'hand_finger_1_bone_3_prev_joint_transformed_pitch'
+ 'hand_finger_1_bone_3_prev_joint_transformed_z'
+ 'hand_finger_1_tip_position_transformed_pitch'
+ 'hand_finger_1_tip_position_transformed_x'
+ 'hand_finger_1_stabilized_tip_position_transformed_z'
+ 'hand_finger_2_bone_0_basis_z_basis_yaw'
+ 'hand_finger_2_bone_0_direction_yaw'
+ 'hand_finger_2_bone_3_basis_y_basis_z'
+ 'hand_finger_2_bone_3_next_joint_transformed_yaw'
+ 'hand_finger_3_bone_2_basis_z_basis_y' 'hand_finger_3_bone_3_center_pitch'
+ 'hand_finger_3_bone_3_center_y' 'hand_finger_3_bone_3_direction_y'
+ 'hand_finger_3_bone_3_prev_joint_transformed_x'
+ 'hand_finger_3_bone_3_next_joint_transformed_pitch'
+ 'hand_finger_3_bone_3_next_joint_transformed_z'
+ 'hand_finger_3_stabilized_tip_position_transformed_y'
+ 'hand_finger_4_bone_0_basis_z_basis_pitch'
+ 'hand_finger_4_bone_0_direction_y' 'hand_finger_4_bone_1_basis_x_basis_z'
+ 'hand_finger_4_bone_1_direction_x'
+ 'hand_finger_4_bone_1_next_joint_transformed_x'
+ 'hand_finger_4_bone_2_basis_y_basis_z' 'hand_finger_4_bone_2_center_y'
+ 'hand_finger_4_bone_2_next_joint_transformed_z'
+ 'hand_finger_4_bone_3_basis_y_basis_pitch']
+feature selection took 29.002482068 seconds
+parameter tuning kNN took 21.191491589 seconds
+kNN chosen parameters: {'p': 2, 'algorithm': 'auto', 'n_neighbors': 4}
+CLASSIFIER: kNN 0.52
+             precision    recall  f1-score   support
+
+          a       0.00      0.00      0.00         1
+          b       0.00      0.00      0.00         3
+          c       1.00      0.50      0.67         2
+          d       0.00      0.00      0.00         1
+          e       1.00      1.00      1.00         1
+          f       0.67      1.00      0.80         2
+          g       0.00      0.00      0.00         0
+          h       0.00      0.00      0.00         3
+          i       1.00      1.00      1.00         3
+          j       0.67      0.67      0.67         3
+          k       1.00      1.00      1.00         3
+          l       0.00      0.00      0.00         2
+          m       0.50      0.50      0.50         2
+          n       0.25      1.00      0.40         1
+          o       0.00      0.00      0.00         1
+          p       0.50      1.00      0.67         1
+          q       0.00      0.00      0.00         2
+          r       0.50      0.40      0.44         5
+          s       0.50      0.50      0.50         2
+          t       0.00      0.00      0.00         2
+          u       0.33      1.00      0.50         1
+          v       0.50      0.50      0.50         2
+          w       0.67      1.00      0.80         2
+          x       1.00      1.00      1.00         3
+          y       1.00      0.50      0.67         2
+
+avg / total       0.51      0.52      0.49        50
+
+[[0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0]
+ [0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0]
+ [0 0 1 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 1 0 0 0 0 0 0 0 0 1 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 1 0 0 0 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 1 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 0 0]
+ [0 0 0 1 0 0 0 0 0 0 0 0 0 0 1 0 0 1 2 0 0 0 0 0 0 0]
+ [0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0]
+ [0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 3 0]
+ [0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1]]
+testing classifier kNN took 0.0222655377623 seconds
+parameter tuning SVM took 18.0823019436 seconds
+SVM chosen parameters: {'kernel': 'rbf', 'C': 64, 'degree': 2, 'gamma': 0.0009765625}
+CLASSIFIER: SVM 0.52
+             precision    recall  f1-score   support
+
+          a       1.00      1.00      1.00         1
+          b       0.00      0.00      0.00         3
+          c       1.00      0.50      0.67         2
+          d       0.00      0.00      0.00         1
+          e       0.50      1.00      0.67         1
+          f       1.00      1.00      1.00         2
+          g       0.00      0.00      0.00         0
+          h       1.00      0.33      0.50         3
+          i       1.00      1.00      1.00         3
+          j       1.00      0.67      0.80         3
+          k       1.00      1.00      1.00         3
+          l       1.00      0.50      0.67         2
+          m       0.00      0.00      0.00         2
+          n       0.50      1.00      0.67         1
+          o       0.00      0.00      0.00         1
+          p       0.50      1.00      0.67         1
+          q       0.00      0.00      0.00         2
+          r       0.00      0.00      0.00         5
+          s       1.00      0.50      0.67         2
+          t       0.00      0.00      0.00         2
+          u       0.25      1.00      0.40         1
+          v       0.50      0.50      0.50         2
+          w       0.40      1.00      0.57         2
+          x       1.00      1.00      1.00         3
+          y       1.00      0.50      0.67         2
+
+avg / total       0.59      0.52      0.52        50
+
+[[1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 0 0 0]
+ [0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0]
+ [0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 0 0]
+ [0 0 0 1 0 0 0 0 0 0 0 0 0 2 1 0 0 1 0 0 0 0 0 0 0 0]
+ [0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0]
+ [0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 3 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1]]
+testing classifier SVM took 0.0101893695564 seconds
+parameter tuning MLP no tuning took 2.03416353569 seconds
+MLP no tuning chosen parameters: {}
+CLASSIFIER: MLP no tuning 0.48
+             precision    recall  f1-score   support
+
+          a       1.00      1.00      1.00         1
+          b       0.00      0.00      0.00         3
+          c       1.00      0.50      0.67         2
+          d       0.00      0.00      0.00         1
+          e       0.33      1.00      0.50         1
+          f       0.67      1.00      0.80         2
+          g       0.00      0.00      0.00         0
+          h       0.00      0.00      0.00         3
+          i       0.75      1.00      0.86         3
+          j       0.67      0.67      0.67         3
+          k       0.75      1.00      0.86         3
+          l       0.33      0.50      0.40         2
+          m       0.00      0.00      0.00         2
+          n       0.33      1.00      0.50         1
+          o       0.00      0.00      0.00         1
+          p       0.50      1.00      0.67         1
+          q       0.00      0.00      0.00         2
+          r       0.00      0.00      0.00         5
+          s       1.00      0.50      0.67         2
+          t       0.00      0.00      0.00         2
+          u       0.33      1.00      0.50         1
+          v       0.50      0.50      0.50         2
+          w       0.33      1.00      0.50         2
+          x       1.00      0.67      0.80         3
+          y       1.00      0.50      0.67         2
+
+avg / total       0.43      0.48      0.42        50
+
+[[1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 1 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 1 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0]
+ [0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 1 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0]
+ [0 0 0 1 0 0 0 0 0 0 0 0 0 2 1 0 0 1 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 2 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1]]
+testing classifier MLP no tuning took 0.0129198085942 seconds
+parameter tuning MLP took 30.5912412475 seconds
+MLP chosen parameters: {'hidden_layer_sizes': (185,), 'learning_rate': 'constant', 'solver': 'adam', 'alpha': 0.001, 'activation': 'logistic', 'learning_rate_init': 0.01}
+CLASSIFIER: MLP 0.52
+             precision    recall  f1-score   support
+
+          a       1.00      1.00      1.00         1
+          b       0.50      0.33      0.40         3
+          c       1.00      0.50      0.67         2
+          d       0.00      0.00      0.00         1
+          e       1.00      1.00      1.00         1
+          f       0.67      1.00      0.80         2
+          g       0.00      0.00      0.00         0
+          h       0.00      0.00      0.00         3
+          i       1.00      1.00      1.00         3
+          j       0.50      0.67      0.57         3
+          k       0.75      1.00      0.86         3
+          l       0.50      0.50      0.50         2
+          m       0.00      0.00      0.00         2
+          n       1.00      1.00      1.00         1
+          o       0.00      0.00      0.00         1
+          p       0.50      1.00      0.67         1
+          q       0.00      0.00      0.00         2
+          r       0.50      0.20      0.29         5
+          s       1.00      0.50      0.67         2
+          t       0.00      0.00      0.00         2
+          u       0.50      1.00      0.67         1
+          v       0.33      0.50      0.40         2
+          w       0.29      1.00      0.44         2
+          x       1.00      0.67      0.80         3
+          y       1.00      0.50      0.67         2
+
+avg / total       0.55      0.52      0.50        50
+
+[[1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 1 0 0 0 1 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0]
+ [0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 1 0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 1 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0]
+ [0 0 0 2 0 0 0 0 0 0 0 0 0 1 0 0 0 1 1 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0]
+ [0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 2 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1]]
+testing classifier MLP took 0.00819501188894 seconds
+parameter tuning SVM no tuning took 0.544795457233 seconds
+SVM no tuning chosen parameters: {}
+CLASSIFIER: SVM no tuning 0.48
+             precision    recall  f1-score   support
+
+          a       1.00      1.00      1.00         1
+          b       0.00      0.00      0.00         3
+          c       1.00      0.50      0.67         2
+          d       0.00      0.00      0.00         1
+          e       0.14      1.00      0.25         1
+          f       1.00      1.00      1.00         2
+          g       0.00      0.00      0.00         0
+          h       0.00      0.00      0.00         3
+          i       0.75      1.00      0.86         3
+          j       1.00      0.67      0.80         3
+          k       1.00      1.00      1.00         3
+          l       0.00      0.00      0.00         2
+          m       0.00      0.00      0.00         2
+          n       0.25      1.00      0.40         1
+          o       0.00      0.00      0.00         1
+          p       0.50      1.00      0.67         1
+          q       0.00      0.00      0.00         2
+          r       0.00      0.00      0.00         5
+          s       1.00      0.50      0.67         2
+          t       0.00      0.00      0.00         2
+          u       0.50      1.00      0.67         1
+          v       0.25      0.50      0.33         2
+          w       0.33      1.00      0.50         2
+          x       1.00      1.00      1.00         3
+          y       1.00      0.50      0.67         2
+
+avg / total       0.46      0.48      0.43        50
+
+[[1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0]
+ [0 0 1 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 1 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 1 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0]
+ [0 0 0 1 0 0 0 0 0 0 0 0 0 2 2 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 3 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1]]
+testing classifier SVM no tuning took 0.00790148250812 seconds
+parameter tuning kNN no tuning took 0.369787082408 seconds
+kNN no tuning chosen parameters: {}
+CLASSIFIER: kNN no tuning 0.52
+             precision    recall  f1-score   support
+
+          a       0.00      0.00      0.00         1
+          b       0.33      0.33      0.33         3
+          c       1.00      0.50      0.67         2
+          d       0.00      0.00      0.00         1
+          e       0.33      1.00      0.50         1
+          f       0.67      1.00      0.80         2
+          g       0.00      0.00      0.00         0
+          h       0.00      0.00      0.00         3
+          i       1.00      0.67      0.80         3
+          j       1.00      0.67      0.80         3
+          k       0.75      1.00      0.86         3
+          l       0.50      0.50      0.50         2
+          m       1.00      0.50      0.67         2
+          n       0.25      1.00      0.40         1
+          o       0.00      0.00      0.00         1
+          p       0.50      1.00      0.67         1
+          q       0.00      0.00      0.00         2
+          r       0.40      0.40      0.40         5
+          s       0.50      0.50      0.50         2
+          t       0.00      0.00      0.00         2
+          u       0.20      1.00      0.33         1
+          v       1.00      0.50      0.67         2
+          w       0.50      1.00      0.67         2
+          x       1.00      0.67      0.80         3
+          y       1.00      0.50      0.67         2
+
+avg / total       0.56      0.52      0.50        50
+
+[[0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0]
+ [0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0]
+ [0 0 1 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 1 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0]
+ [0 0 0 0 1 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 1 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 0 0]
+ [0 0 0 1 1 0 0 0 0 0 0 0 0 0 1 0 0 0 2 0 0 0 0 0 0 0]
+ [0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0]
+ [0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 2 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1]]
+testing classifier kNN no tuning took 0.00998492531627 seconds
+CLASSIFIER: voting 0.52
+             precision    recall  f1-score   support
+
+          a       1.00      1.00      1.00         1
+          b       0.50      0.33      0.40         3
+          c       0.50      0.50      0.50         2
+          d       0.00      0.00      0.00         1
+          e       0.50      1.00      0.67         1
+          f       0.67      1.00      0.80         2
+          g       0.00      0.00      0.00         0
+          h       0.00      0.00      0.00         3
+          i       1.00      1.00      1.00         3
+          j       0.67      0.67      0.67         3
+          k       0.75      1.00      0.86         3
+          l       0.33      0.50      0.40         2
+          m       0.00      0.00      0.00         2
+          n       0.33      1.00      0.50         1
+          o       0.00      0.00      0.00         1
+          p       0.50      1.00      0.67         1
+          q       0.00      0.00      0.00         2
+          r       0.50      0.20      0.29         5
+          s       1.00      0.50      0.67         2
+          t       0.00      0.00      0.00         2
+          u       0.33      1.00      0.50         1
+          v       1.00      0.50      0.67         2
+          w       0.33      1.00      0.50         2
+          x       1.00      0.67      0.80         3
+          y       1.00      0.50      0.67         2
+
+avg / total       0.53      0.52      0.49        50
+
+[[1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 1 0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0]
+ [0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 1 0 0 0 0 0 0 0 0 1 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 1 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 1 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0]
+ [0 0 0 1 0 0 0 0 0 0 0 0 0 1 1 0 0 1 1 0 0 0 0 0 0 0]
+ [0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0]
+ [0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 2 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1]]
+testing classifier voting took 0.0321412619382 seconds
+Data variables: 
+	 train_paths: [], 
+	 test_paths: ['Leap_Data\\Legit_Data\\Participant 12\\Leap'], 
+	 use_auto_split: True, 
+	 frames_per_gesture: 1, 
+	 separate_frames: False, 
+	 feature_set_type: all 
+	 average: False
+loading data took 1.59401191852 seconds
+loaded top 2 confidence frames...
+scaling
+SelectKBest(k=500, score_func=<function f_classif at 0x000000000B4C4EB8>)
+RFE(estimator=ExtraTreesClassifier(bootstrap=False, class_weight=None, criterion='gini',
+           max_depth=None, max_features='auto', max_leaf_nodes=None,
+           min_impurity_split=1e-07, min_samples_leaf=1,
+           min_samples_split=2, min_weight_fraction_leaf=0.0,
+           n_estimators=10, n_jobs=1, oob_score=False, random_state=None,
+           verbose=0, warm_start=False),
+  n_features_to_select=50, step=1, verbose=0)
+number of features: 50
+features selected: ['hand_finger_0_bone_0_basis_z_basis_pitch'
+ 'hand_finger_0_bone_0_prev_joint_y' 'hand_finger_0_bone_1_basis_z_basis_y'
+ 'hand_finger_0_bone_1_basis_z_basis_z' 'hand_finger_0_bone_1_direction_x'
+ 'hand_finger_0_bone_1_direction_y'
+ 'hand_finger_0_bone_2_basis_x_basis_pitch'
+ 'hand_finger_0_bone_2_basis_y_basis_pitch'
+ 'hand_finger_0_bone_2_basis_z_basis_pitch'
+ 'hand_finger_0_bone_2_basis_z_basis_x'
+ 'hand_finger_0_bone_2_direction_pitch' 'hand_finger_0_bone_2_direction_y'
+ 'hand_finger_0_bone_2_next_joint_transformed_x'
+ 'hand_finger_0_bone_3_basis_y_basis_yaw'
+ 'hand_finger_0_bone_3_direction_roll' 'hand_finger_0_bone_3_direction_y'
+ 'hand_finger_0_bone_3_prev_joint_transformed_x'
+ 'hand_finger_0_bone_3_next_joint_transformed_x'
+ 'hand_finger_0_tip_position_transformed_roll'
+ 'hand_finger_0_stabilized_tip_position_transformed_x'
+ 'hand_finger_0_stabilized_tip_position_transformed_yaw'
+ 'hand_finger_1_bone_0_basis_y_basis_x'
+ 'hand_finger_1_bone_0_basis_z_basis_x'
+ 'hand_finger_1_bone_0_basis_z_basis_y'
+ 'hand_finger_1_bone_0_direction_pitch'
+ 'hand_finger_1_bone_0_direction_roll' 'hand_finger_1_bone_0_direction_x'
+ 'hand_finger_1_bone_0_prev_joint_y' 'hand_finger_1_bone_1_basis_z_basis_y'
+ 'hand_finger_1_bone_2_next_joint_transformed_yaw'
+ 'hand_finger_2_direction_y' 'hand_finger_2_tip_position_y'
+ 'hand_finger_2_bone_0_direction_x' 'hand_finger_2_bone_0_direction_yaw'
+ 'hand_finger_2_tip_position_transformed_z'
+ 'hand_finger_2_stabilized_tip_position_transformed_pitch'
+ 'hand_finger_3_stabilized_tip_position_x'
+ 'hand_finger_3_bone_0_center_yaw' 'hand_finger_3_bone_2_direction_y'
+ 'hand_finger_3_bone_2_prev_joint_y'
+ 'hand_finger_3_bone_3_next_joint_transformed_pitch'
+ 'hand_finger_3_tip_position_transformed_z'
+ 'hand_finger_4_bone_1_basis_z_basis_y'
+ 'hand_finger_4_bone_2_basis_y_basis_pitch'
+ 'hand_finger_4_bone_2_basis_y_basis_z'
+ 'hand_finger_4_bone_2_basis_z_basis_z' 'hand_finger_4_bone_2_center_y'
+ 'hand_finger_4_bone_2_direction_pitch'
+ 'hand_finger_4_bone_2_next_joint_transformed_z'
+ 'hand_finger_4_bone_3_direction_y']
+feature selection took 28.635296518 seconds
+parameter tuning kNN took 17.5125934368 seconds
+kNN chosen parameters: {'p': 1, 'algorithm': 'auto', 'n_neighbors': 2}
+CLASSIFIER: kNN 0.553191489362
+             precision    recall  f1-score   support
+
+          a       0.33      1.00      0.50         1
+          b       1.00      1.00      1.00         1
+          c       0.00      0.00      0.00         1
+          d       0.00      0.00      0.00         1
+          e       0.50      1.00      0.67         2
+          f       1.00      0.50      0.67         2
+          g       0.50      1.00      0.67         1
+          h       0.50      0.50      0.50         2
+          i       1.00      1.00      1.00         2
+          j       1.00      0.50      0.67         2
+          k       1.00      0.67      0.80         3
+          l       0.33      0.50      0.40         2
+          m       0.00      0.00      0.00         1
+          n       0.50      0.50      0.50         2
+          o       1.00      0.75      0.86         4
+          p       0.00      0.00      0.00         0
+          q       0.00      0.00      0.00         5
+          r       0.00      0.00      0.00         2
+          s       0.00      0.00      0.00         3
+          t       0.67      0.67      0.67         3
+          u       0.00      0.00      0.00         0
+          v       0.40      1.00      0.57         2
+          w       0.60      1.00      0.75         3
+          x       1.00      1.00      1.00         1
+          y       1.00      1.00      1.00         1
+
+avg / total       0.53      0.55      0.51        47
+
+[[1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0]
+ [0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 1 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 1 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 1 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 3 1 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 2 1 0 0]
+ [0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0]
+ [0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 3 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1]]
+testing classifier kNN took 0.0180062827603 seconds
+parameter tuning SVM took 10.6207185763 seconds
+SVM chosen parameters: {'kernel': 'linear', 'C': 0.125, 'degree': 2, 'gamma': 0.001953125}
+CLASSIFIER: SVM 0.468085106383
+             precision    recall  f1-score   support
+
+          a       0.33      1.00      0.50         1
+          b       0.00      0.00      0.00         0
+          c       1.00      1.00      1.00         1
+          d       0.00      0.00      0.00         1
+          e       0.00      0.00      0.00         1
+          f       0.67      1.00      0.80         2
+          g       1.00      0.50      0.67         2
+          h       1.00      1.00      1.00         1
+          i       0.50      0.50      0.50         2
+          j       1.00      1.00      1.00         2
+          k       0.50      0.50      0.50         2
+          l       1.00      0.67      0.80         3
+          m       0.50      0.50      0.50         2
+          n       0.00      0.00      0.00         1
+          o       1.00      0.50      0.67         2
+          p       1.00      0.50      0.67         4
+          q       0.00      0.00      0.00         0
+          r       0.00      0.00      0.00         5
+          s       0.17      0.50      0.25         2
+          t       0.00      0.00      0.00         3
+          u       0.50      0.33      0.40         3
+          v       0.00      0.00      0.00         0
+          w       0.67      1.00      0.80         2
+          x       0.00      0.00      0.00         3
+          y       1.00      1.00      1.00         1
+          z       0.50      1.00      0.67         1
+
+avg / total       0.52      0.47      0.46        47
+
+[[1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0]
+ [0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1]
+ [0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 1 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 1 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 2 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0 1 1 1 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 1 0 0 0 0 0 0 0]
+ [2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0]
+ [0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 1 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1]]
+testing classifier SVM took 0.00874553342706 seconds
+parameter tuning MLP no tuning took 1.96114820483 seconds
+MLP no tuning chosen parameters: {}
+CLASSIFIER: MLP no tuning 0.531914893617
+             precision    recall  f1-score   support
+
+          a       0.20      1.00      0.33         1
+          b       0.00      0.00      0.00         0
+          c       1.00      1.00      1.00         1
+          d       0.00      0.00      0.00         1
+          e       0.00      0.00      0.00         1
+          f       0.67      1.00      0.80         2
+          g       1.00      1.00      1.00         2
+          h       1.00      1.00      1.00         1
+          i       0.50      0.50      0.50         2
+          j       1.00      1.00      1.00         2
+          k       0.50      0.50      0.50         2
+          l       1.00      0.67      0.80         3
+          m       0.50      1.00      0.67         2
+          n       0.00      0.00      0.00         1
+          o       1.00      0.50      0.67         2
+          p       1.00      0.50      0.67         4
+          q       0.00      0.00      0.00         0
+          r       0.00      0.00      0.00         5
+          s       0.33      0.50      0.40         2
+          t       0.00      0.00      0.00         3
+          u       1.00      0.33      0.50         3
+          v       0.00      0.00      0.00         0
+          w       0.40      1.00      0.57         2
+          x       0.50      0.33      0.40         3
+          y       1.00      1.00      1.00         1
+          z       1.00      1.00      1.00         1
+
+avg / total       0.59      0.53      0.52        47
+
+[[1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0]
+ [0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 1 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 1 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 2 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 1 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 2 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0 0]
+ [2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 0 1 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0]
+ [2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1]]
+testing classifier MLP no tuning took 0.00742075117248 seconds
+parameter tuning MLP took 18.8426259672 seconds
+MLP chosen parameters: {'hidden_layer_sizes': (180,), 'learning_rate': 'invscaling', 'solver': 'adam', 'alpha': 1.0000000000000001e-05, 'activation': 'logistic', 'learning_rate_init': 0.01}
+CLASSIFIER: MLP 0.510638297872
+             precision    recall  f1-score   support
+
+          a       0.33      1.00      0.50         1
+          b       0.00      0.00      0.00         0
+          c       1.00      1.00      1.00         1
+          d       0.00      0.00      0.00         1
+          e       0.00      0.00      0.00         1
+          f       0.67      1.00      0.80         2
+          g       1.00      0.50      0.67         2
+          h       1.00      1.00      1.00         1
+          i       0.50      0.50      0.50         2
+          j       1.00      1.00      1.00         2
+          k       0.33      0.50      0.40         2
+          l       1.00      0.67      0.80         3
+          m       0.67      1.00      0.80         2
+          n       0.00      0.00      0.00         1
+          o       1.00      0.50      0.67         2
+          p       1.00      0.50      0.67         4
+          q       0.00      0.00      0.00         0
+          r       0.00      0.00      0.00         5
+          s       0.50      0.50      0.50         2
+          t       0.00      0.00      0.00         3
+          u       1.00      0.33      0.50         3
+          v       0.00      0.00      0.00         0
+          w       0.25      0.50      0.33         2
+          x       0.50      0.67      0.57         3
+          y       0.50      1.00      0.67         1
+          z       0.50      1.00      0.67         1
+
+avg / total       0.57      0.51      0.50        47
+
+[[1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0]
+ [0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1]
+ [0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 1 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 1 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 2 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 1 1 1 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 1 0 0 0 0 0 0 0]
+ [2 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 0 1 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 2 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1]]
+testing classifier MLP took 0.0128036284337 seconds
+parameter tuning SVM no tuning took 0.676220671694 seconds
+SVM no tuning chosen parameters: {}
+CLASSIFIER: SVM no tuning 0.404255319149
+             precision    recall  f1-score   support
+
+          a       0.33      1.00      0.50         1
+          b       1.00      1.00      1.00         1
+          c       0.00      0.00      0.00         1
+          d       0.00      0.00      0.00         1
+          e       0.50      1.00      0.67         2
+          f       1.00      0.50      0.67         2
+          g       1.00      1.00      1.00         1
+          h       1.00      0.50      0.67         2
+          i       1.00      1.00      1.00         2
+          j       0.00      0.00      0.00         2
+          k       1.00      0.67      0.80         3
+          l       0.00      0.00      0.00         2
+          m       0.00      0.00      0.00         1
+          n       0.50      0.50      0.50         2
+          o       1.00      0.25      0.40         4
+          p       0.00      0.00      0.00         0
+          q       0.00      0.00      0.00         5
+          r       0.22      1.00      0.36         2
+          s       0.00      0.00      0.00         3
+          t       0.00      0.00      0.00         3
+          u       0.20      1.00      0.33         2
+          v       0.00      0.00      0.00         3
+          w       1.00      1.00      1.00         1
+          x       0.33      1.00      0.50         1
+
+avg / total       0.42      0.40      0.35        47
+
+[[1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0]
+ [0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1]
+ [0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 1 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 1 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0]
+ [0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 0 0 0 0 0 0 0 0 1]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 3 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0 0 0 0 0]
+ [2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0]
+ [0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0 1 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1]]
+testing classifier SVM no tuning took 0.00742773019275 seconds
+parameter tuning kNN no tuning took 0.382327971256 seconds
+kNN no tuning chosen parameters: {}
+CLASSIFIER: kNN no tuning 0.468085106383
+             precision    recall  f1-score   support
+
+          a       0.33      1.00      0.50         1
+          b       1.00      1.00      1.00         1
+          c       0.00      0.00      0.00         1
+          d       0.00      0.00      0.00         1
+          e       0.50      1.00      0.67         2
+          f       1.00      0.50      0.67         2
+          g       1.00      1.00      1.00         1
+          h       1.00      0.50      0.67         2
+          i       1.00      1.00      1.00         2
+          j       0.50      0.50      0.50         2
+          k       1.00      0.67      0.80         3
+          l       0.33      0.50      0.40         2
+          m       0.00      0.00      0.00         1
+          n       0.67      1.00      0.80         2
+          o       1.00      0.25      0.40         4
+          p       0.00      0.00      0.00         0
+          q       0.00      0.00      0.00         5
+          r       0.17      0.50      0.25         2
+          s       0.00      0.00      0.00         3
+          t       0.50      0.33      0.40         3
+          u       0.00      0.00      0.00         0
+          v       0.67      1.00      0.80         2
+          w       0.00      0.00      0.00         3
+          x       1.00      1.00      1.00         1
+          y       1.00      1.00      1.00         1
+
+avg / total       0.52      0.47      0.45        47
+
+[[1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0]
+ [0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0]
+ [0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 1 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 1 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 1 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 1 0 1 0 0 0 0 0 1 0 1 1 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0 0]
+ [2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0]
+ [0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0 1 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1]]
+testing classifier kNN no tuning took 0.0150020198106 seconds
+CLASSIFIER: voting 0.531914893617
+             precision    recall  f1-score   support
+
+          a       0.33      1.00      0.50         1
+          b       0.00      0.00      0.00         0
+          c       1.00      1.00      1.00         1
+          d       0.00      0.00      0.00         1
+          e       0.00      0.00      0.00         1
+          f       0.67      1.00      0.80         2
+          g       1.00      0.50      0.67         2
+          h       1.00      1.00      1.00         1
+          i       0.50      0.50      0.50         2
+          j       1.00      1.00      1.00         2
+          k       0.50      0.50      0.50         2
+          l       1.00      0.67      0.80         3
+          m       0.33      0.50      0.40         2
+          n       0.00      0.00      0.00         1
+          o       0.67      1.00      0.80         2
+          p       1.00      0.50      0.67         4
+          q       0.00      0.00      0.00         0
+          r       0.00      0.00      0.00         5
+          s       0.33      0.50      0.40         2
+          t       0.00      0.00      0.00         3
+          u       1.00      0.33      0.50         3
+          v       0.00      0.00      0.00         0
+          w       0.40      1.00      0.57         2
+          x       0.50      0.67      0.57         3
+          y       1.00      1.00      1.00         1
+          z       1.00      1.00      1.00         1
+
+avg / total       0.57      0.53      0.51        47
+
+[[1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0]
+ [0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0]
+ [0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 1 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 1 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 2 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0 0 1 2 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0 0]
+ [2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0]
+ [0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1]]
+testing classifier voting took 0.0289621129517 seconds
+Data variables: 
+	 train_paths: [], 
+	 test_paths: ['Leap_Data\\Legit_Data\\Participant 14\\Leap'], 
+	 use_auto_split: True, 
+	 frames_per_gesture: 1, 
+	 separate_frames: False, 
+	 feature_set_type: all 
+	 average: False
+loading data took 2.99400502161 seconds
+loaded top 2 confidence frames...
+error! results so far: [{'kNN': {'recall': 0.52000000000000002, 'precision': 0.505, 'accuracy': 0.52000000000000002}, 'SVM': {'recall': 0.52000000000000002, 'precision': 0.59099999999999997, 'accuracy': 0.52000000000000002}, 'MLP no tuning': {'recall': 0.47999999999999998, 'precision': 0.43333333333333335, 'accuracy': 0.47999999999999998}, 'MLP': {'recall': 0.52000000000000002, 'precision': 0.54642857142857137, 'accuracy': 0.52000000000000002}, 'SVM no tuning': {'recall': 0.47999999999999998, 'precision': 0.4561904761904762, 'accuracy': 0.47999999999999998}, 'voting': {'recall': 0.52000000000000002, 'precision': 0.53166666666666673, 'accuracy': 0.52000000000000002}, 'kNN no tuning': {'recall': 0.52000000000000002, 'precision': 0.55733333333333335, 'accuracy': 0.52000000000000002}}, {'kNN': {'recall': 0.55319148936170215, 'precision': 0.53404255319148941, 'accuracy': 0.55319148936170215}, 'SVM': {'recall': 0.46808510638297873, 'precision': 0.51773049645390068, 'accuracy': 0.46808510638297873}, 'MLP no tuning': {'recall': 0.53191489361702127, 'precision': 0.58510638297872342, 'accuracy': 0.53191489361702127}, 'MLP': {'recall': 0.51063829787234039, 'precision': 0.56737588652482263, 'accuracy': 0.51063829787234039}, 'SVM no tuning': {'recall': 0.40425531914893614, 'precision': 0.41513002364066198, 'accuracy': 0.40425531914893614}, 'voting': {'recall': 0.53191489361702127, 'precision': 0.56666666666666665, 'accuracy': 0.53191489361702127}, 'kNN no tuning': {'recall': 0.46808510638297873, 'precision': 0.52127659574468088, 'accuracy': 0.46808510638297873}}]
