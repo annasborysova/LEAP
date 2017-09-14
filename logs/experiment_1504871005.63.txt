@@ -1,8 +1,0 @@
-Data variables: 
-	 train_paths: [], 
-	 test_paths: ['Leap_Data\\Legit_Data\\Participant 12\\Leap'], 
-	 use_auto_split: True, 
-	 frames_per_gesture: 2, 
-	 separate_frames: False, 
-	 feature_set_type: all 
-	 average: False
