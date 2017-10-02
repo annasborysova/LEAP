@@ -24,7 +24,22 @@ log.addHandler(fh)
 
 
 def select_features(training_data, training_target, test_data, feature_labels, fresh=False):
-    # remove featuers with 0 variance, only changes at threshold 1.... check with more data  
+    """Perform preprocessing and feature selection
+
+    Parameters
+    ----------
+    training_data : list
+        The training data to be transformed
+    training_target : list
+        The labels for the training data to be transformed
+    test_data : list
+        The test data to be transformed
+    feature_labels : list
+        The names of the features defining a data point
+    fresh : boolean
+        Recalculate feature selection or not, optional
+    """
+
     training_data, test_data, feature_labels = remove_0_var(training_data, training_target, test_data, feature_labels)
     training_data, test_data = scale(training_data, test_data)
     
@@ -42,20 +57,22 @@ def select_features(training_data, training_target, test_data, feature_labels, f
         log.info(selector)
 
     else:
-    
         loaded_labels = list(load_selected_features())
         feature_indeces = [x for x, feature in enumerate(feature_labels[0]) if feature in loaded_labels]
         feature_labels = [[each_list[i] for i in feature_indeces] for each_list in feature_labels]
         training_data = [[each_list[i] for i in feature_indeces] for each_list in training_data]
         test_data = [[each_list[i] for i in feature_indeces] for each_list in test_data]
 
+        selector = SelectKBest(k=50, score_func=mutual_info_classif)
+        training_data = selector.fit_transform(training_data, training_target)
+        test_data = selector.transform(test_data)
+        feature_labels = selector.transform(feature_labels)
         log.info("last run features")
-
+        log.info(selector)
 
     log.info("number of features: {}".format(len(training_data[0])))
     print("number of features: {}".format(len(training_data[0])))
     log.info("features selected: {}".format(feature_labels[0]))
-#    print("features selected: {}".format(feature_labels[0]))    
 
     
     return training_data, test_data, feature_labels
@@ -63,6 +80,20 @@ def select_features(training_data, training_target, test_data, feature_labels, f
     
 
 def optimize_params(clf, params, training_data, training_target):
+    """Run grid search on given classifier 
+
+    Parameters
+    ----------
+    clf : sklearn classifier
+        The classifier to tune
+    params : dict
+        The possible parameters and their values
+    training_data : list
+        The training data for the classifier
+    training_target : list
+        The labels of the training data
+    """
+    
     try:
         rand_scv = RandomizedSearchCV(clf, params, n_iter=40, n_jobs=-1)
         return rand_scv.fit(training_data, training_target)
@@ -72,6 +103,22 @@ def optimize_params(clf, params, training_data, training_target):
         
 
 def test_clf(name, clf, test_data, test_target, results):
+    """Test and record classifier performance 
+
+    Parameters
+    ----------
+    name : string
+        The name of the classifier
+    clf : sklearn classifier
+        The trained classifier to test
+    test_data : list
+        The data used to test the classifier
+    test_target : list
+        The correct labels of the training data
+    results : dict
+        The results of the curernt execution
+    """
+    
     gesture_pred = clf.predict(test_data)
     target_names = list(string.ascii_lowercase)
     accuracy = accuracy_score(test_target, gesture_pred)
@@ -87,11 +134,23 @@ def test_clf(name, clf, test_data, test_target, results):
 
     report = classification_report(test_target, gesture_pred, target_names=target_names)
     cm = confusion_matrix(test_target, gesture_pred, target_names)
-#    utils.plot_confusion_matrix(cm, classes=target_names, title=n)
     log.info(report)
     log.info(cm)
 
 def remove_0_var(training_data, training_target, test_data, feature_labels):
+    """Remove features that do not vary across data points
+
+    Parameters
+    ----------
+    training_data : list
+        The training data to be transformed
+    training_target : list
+        The labels of the training data
+    test_data : list
+        The test data to be transformed
+    feature_labels : list
+        The names of the features defining a data point
+    """
     selector = VarianceThreshold()
     training_data = selector.fit_transform(training_data, training_target)
     test_data = selector.transform(test_data)
@@ -99,6 +158,15 @@ def remove_0_var(training_data, training_target, test_data, feature_labels):
     return training_data, test_data, feature_labels
 
 def scale(training_data, test_data):
+    """Scale data
+
+    Parameters
+    ----------
+    training_data : list
+        The training data to be transformed
+    test_data : list
+        The test data to be transformed
+    """
     log.info("scaling")
     training_data = preprocessing.scale(training_data)
     test_data = preprocessing.scale(test_data)
@@ -106,7 +174,19 @@ def scale(training_data, test_data):
 
 
 def remove_low_confidence(confidence, data, target, feature_labels):
-    # account for the multiframed
+    """Remove data points with low confidence
+
+    Parameters
+    ----------
+    confidence : float 
+        Minimum confidence value
+    data : list
+        The data to be transformed
+    target : list
+        The labels for the data to be transformed
+    feature_labels : list
+        The names of the features defining a data point
+    """
     confidence_index = feature_labels.index("hand_confidence")
     for i, gesture in enumerate(data):
         if gesture[confidence_index] <= confidence:
@@ -116,10 +196,24 @@ def remove_low_confidence(confidence, data, target, feature_labels):
 
 
 def load_paths(paths, fresh, frames_per_gesture, separate_frames, feature_set_type):
+    """Load data from given paths
+
+    Parameters
+    ----------
+    paths : list
+        The paths to the data: every path leads to the Leap subfolder of a participant folder
+    fresh : boolean
+        Recalculate aggregate of frames
+    frames_per_gesture : int
+        The number of frames considered to define a gesture
+    separate_frames : boolean
+        Treat every frame as a separate data point [not recommended]
+    feature_set_type : string
+        'hands_only', 'fingers_only', 'all'
+    """
     all_data = []
     all_target = []
     for path in paths:
-#        print("loading path {}".format(path))
         if fresh:
             data, target = read_data(path, frames_per_gesture, separate_frames, feature_set_type)
             try:
@@ -138,7 +232,27 @@ def load_paths(paths, fresh, frames_per_gesture, separate_frames, feature_set_ty
     return all_data, all_target
 
 def get_train_test_split(frames_per_gesture, separate_frames, fresh=False, feature_set_type="all", train_paths=[], test_paths=[], use_auto_split=False, average=False):
+   """Split given paths into sklearn appropriate train and test lists
 
+    Parameters
+    ----------
+    frames_per_gesture : int
+        The number of frames considered to define a gesture
+    separate_frames : boolean
+        Treat every frame as a separate data point [not recommended]
+    fresh : boolean
+        Recalculate aggregate of frames
+    feature_set_type : string
+        'hands_only', 'fingers_only', 'all'
+   train_paths : list
+        The paths to the training data, optional
+   test_paths : list
+        The paths to the testing data, optional
+    use_auto_split : boolean
+        Split data randomly, optional
+    average : boolean
+        Take average of all frames in a gesture, optional
+    """
     log.info('Data variables: \n'
             '\t train_paths: {}, \n'
             '\t test_paths: {}, \n'
@@ -167,10 +281,27 @@ def get_train_test_split(frames_per_gesture, separate_frames, fresh=False, featu
 
     
 def run_experiment(test_participant, valid_participants, fpg=1, quick_test=False, fresh_paths=True, fresh_labels=True):
+   """Run the experiment for one participan
+
+    Parameters
+    ----------
+    test_participant : int
+        The participant number selected as the test set
+    valid_participants : list
+        All valid participant numbers
+    fpg : int
+        The number of frames considered to define a gesture
+    quick_test : boolean
+        Use only test_participant's data
+    fresh_paths : boolean
+        Recalculate aggregate of frames
+    fresh_labels : boolean
+        Recalculate features to be selected
+    """
+
     results = {}    
     
     train_paths = [os.path.join("Leap_Data", "Legit_Data", "Participant " + str(x), "Leap") for x in valid_participants]
-#    train_paths = [os.path.join("Leap_Data", "Legit_Data", "Participant " + str(x), "Leap") for x in [1,2,12,13,14,15,16]]
     test_paths = [os.path.join("Leap_Data", "Legit_Data", "Participant " + str(test_participant), "Leap")]
     train_paths.remove(test_paths[0])
 
@@ -187,16 +318,10 @@ def run_experiment(test_participant, valid_participants, fpg=1, quick_test=False
         )
     end = time.clock()
     log.info("loading data took {} seconds".format(end - start))
-    log.info("loaded top 2 confidence frames...")
+    log.info("loaded top {} confidence frames...".format(fpg))
 
     
     all_feature_labels = get_feature_names(test_paths[0], 'all') * fpg
-#    print("train data before confidence pruning: {}".format(len(training_target)))
-#    print("test data before confidence pruning: {}".format(len(test_target)))
-#    remove_low_confidence(0.5, training_data, training_target, all_feature_labels)
-#    remove_low_confidence(0.5, test_data, test_target, all_feature_labels)
-#    print("train data after pruning: {}".format(len(training_target)))
-#    print("test data after pruning: {}".format(len(test_target)))
 
     print len(training_data[0])
     print len(all_feature_labels)
@@ -207,51 +332,15 @@ def run_experiment(test_participant, valid_participants, fpg=1, quick_test=False
 
 
 
-    c_range = [2**(x) for x in range(-5, 15)] # http://www.csie.ntu.edu.tw/~cjlin/papers/guide/guide.pdf page 5
     lower_c = [2**(x) for x in range(-5, 7)]
-    gamma_range = [2**(x) for x in range(-15, 3)] + ['auto'] # http://www.csie.ntu.edu.tw/~cjlin/papers/guide/guide.pdf page 5
+    gamma_range = [2**(x) for x in range(-15, 3)] + ['auto']
     
-    svm_params = {  'kernel': ['poly', 'linear', 'rbf'],
-                    'degree': range(5),
-                    'gamma': gamma_range, 
+    svm_params = {  'gamma': gamma_range, 
                     'C': lower_c,}
-    
-    # maybe drop poly and sigmoid
-#    svm_params = [
-#                    {'kernel': ['linear'], 
-#                    'C': c_range, 
-#                    'decision_function_shape': desc_functions},
-#    
-#
-#    
-#                    {'kernel': ['poly'], 
-#                    'gamma': gamma_range, 
-#                    'degree': range(5), # https://stackoverflow.com/questions/26337403/what-is-a-good-range-of-values-for-the-svm-svc-hyperparameters-to-be-explored
-#                    # not tuning coef0 https://stackoverflow.com/questions/21390570/scikit-learn-svc-coef0-parameter-range                
-#                    'C': c_range, 
-#                    'decision_function_shape': desc_functions},
-#                    # poly was actually doing better, gridsearch lied??
-#                    # tiny C 0.001 stuff
-##                    
-#                    {'kernel': ['rbf'], 
-#                    'gamma': gamma_range, 
-#                    'C': c_range, 
-#                    'decision_function_shape': desc_functions},
-#                    # small C 6 stuff                    
-##                    
-##                     sigmoid is easily invalid, drop sigmoid
-#                ]
-    
-                
-    neighbor_range = range(1,50) # maybe higher with more data?
-    p_range = range(1,5) # special for one and 2, minkwski shit?? arbitrary p for sparse matrices 
-                            #http://scikit-learn.org/stable/modules/neighbors.html#classification
-    # https://datascience.stackexchange.com/questions/989/svm-using-scikit-learn-runs-endlessly-and-never-completes-execution
-    # brute algortihm infeasible for large data
-    # kd tree bad for high dimensionality, consider with lower dimensions
-    # leaf_size is more or less meaningless for accuracy, performance paramter
+                  
+    neighbor_range = range(1,50) 
+    p_range = range(1,3)
     knn_params = {'n_neighbors': neighbor_range, 
-                    'algorithm': ['auto', 'ball_tree'],
                     'p': p_range,}
                     
                 
@@ -262,38 +351,31 @@ def run_experiment(test_participant, valid_participants, fpg=1, quick_test=False
         nodes_per_layer_range = range(26, len(training_data[0])+1, 1)
         
         
-    nodes_per_layer_range = range(20, 200, 5)
-    alpha_range = np.logspace(-5, 3, 5) # regularization term: margin width kinda thing, prevent overfitting
-    learning_rate_init_range = [10**x for x in range(-6,1)] # http://www.uio.no/studier/emner/matnat/ifi/INF3490/h15/beskjeder/question-about-mlp-learning-rate.html 
-    #radius neighbours not effective in higher dimensions
+    nodes_per_layer_range = range(30, 200, 5)
+    alpha_range = np.logspace(-5, 3, 5)
+    learning_rate_init_range = [10**x for x in range(-6,1)] 
     mlp_params = {
                     'hidden_layer_sizes': [(x,) for x in nodes_per_layer_range],
-#                    'activation': ('identity', 'logistic', 'tanh', 'relu'),
-                    'activation': ('logistic', 'tanh'),
+                    'activation': ('identity', 'logistic', 'tanh', 'relu'),
                     'learning_rate_init': learning_rate_init_range,
                     'alpha': alpha_range,
                     'solver': ['lbfgs', 'sgd', 'adam'],
                     'learning_rate': ['constant', 'invscaling', 'adaptive'],
                 }
+             
                 
-#            'BNB': (BernoulliNB(), {}), # alpha not important because we have well defined priors https://stats.stackexchange.com/questions/108797/in-naive-bayes-why-bother-with-laplacian-smoothing-when-we-have-unknown-words-i
-#            'GNB': (GaussianNB(), {}), # binarize parameter may work for finger extension, MultinomialNB is for positives only
-                
-                
-#    log.info("svm_params: {}, \n knn_params: {}, \n mlp_params: {}".format(svm_params, knn_params, mlp_params))
-    
     classifiers = {        
             'SVM': (svm.SVC(probability=True, decision_function_shape='ovo'), svm_params),
-            'SVM no tuning': (svm.SVC(probability=True, kernel='rbf', decision_function_shape='ovo'), {}),
+            'SVM pretuned': (svm.SVC(probability=True, kernel='rbf', decision_function_shape='ovo'), {}),
+            'SVM default': (svm.SVC(probability=True), {}),
 
-            'kNN': (neighbors.KNeighborsClassifier(weights='distance'), knn_params),
-            'kNN no tuning': (neighbors.KNeighborsClassifier(weights='distance'), {}),
+            'kNN': (neighbors.KNeighborsClassifier(weights='distance', algorithm="ball_tree"), knn_params),
+            'kNN pretuned': (neighbors.KNeighborsClassifier(weights='distance', algorithm="ball_tree"), {}),
+            'kNN default': (neighbors.KNeighborsClassifier(), {}),
 
             'MLP': (MLPClassifier(), mlp_params),
-            'MLP no tuning': (MLPClassifier(), {}),
+            'MLP default': (MLPClassifier(), {}),
 
-#            'ETC': (ExtraTreesClassifier(), {}),
-#            'RFC': (RandomForestClassifier(), {}),
         }
     
     
@@ -330,35 +412,11 @@ def run_experiment(test_participant, valid_participants, fpg=1, quick_test=False
     return results
 
 if __name__=="__main__":
-#    import winsound
     valid_participants = range(3) + [x for x in range(12, 49) if x not in [13, 20, 24, 25, 34]]
-#    valid_participants = [x for x in range(33, 49) if x not in [13, 20, 24, 25, 34]]
-#    valid_participants = [2,12,14]
-    all_results = []
-    try:
-        for x, participant in enumerate(valid_participants):
-            print("\nTest participant {}".format(participant))
-            all_results.append(run_experiment(participant, valid_participants, fresh_paths=False))
-
-
-    except Exception:
-        log.info("error! results so far: {}".format(all_results))
-        print(all_results)
-#        winsound.Beep(1000,250)
-#        winsound.Beep(500,250)
-#        winsound.Beep(1000,250)
-#        winsound.Beep(500,250)
-        
-        raise
-
-    log.info(all_results)    
-    print(all_results)
-    
-  
-  
-    averages = {} 
-       
-    for result in all_results:
+    averages = {}
+    for x, participant in enumerate(valid_participants):
+        print("\nTest participant {}".format(participant))
+        result = run_experiment(participant, valid_participants, fresh_paths=False)
         for name, clf_result in result.iteritems():
             try:
                 a = averages[name]
@@ -366,13 +424,12 @@ if __name__=="__main__":
                 averages[name] = {}
             for attribute, value in clf_result.iteritems():
                 try:
-                    averages[name][attribute] += value/len(all_results)
+                    averages[name][attribute] += value/len(valid_participants)
                 except KeyError:
-                    averages[name][attribute] = value/len(all_results)
-    
+                    averages[name][attribute] = value/len(valid_participants)
+
+
     log.info("Averages: \n{}".format(averages))
     print(averages)
-    
-#    winsound.Beep(500,500)
-#    winsound.Beep(500,500)
+
     
